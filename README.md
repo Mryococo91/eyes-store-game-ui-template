@@ -5,7 +5,6 @@ Premium gaming website template optimized for SEO, AdSense, and multiple gaming 
 [![YouTube Tutorial](https://img.shields.io/badge/YouTube-Tutorial-red?style=for-the-badge&logo=youtube)](https://youtu.be/CGxN356wccc)
 [![Discord Community](https://img.shields.io/badge/Discord-Join_Community-7289DA?style=for-the-badge&logo=discord)](https://discord.gg/EkwWvFS)
 [![Tebex Store](https://img.shields.io/badge/Tebex-Purchase_Now-5CAD3A?style=for-the-badge&logo=shopify)](https://eyestore.tebex.io/)
-[![GitHub Stars](https://img.shields.io/github/stars/eyestore/eyes-store-game-ui-template?style=for-the-badge&logo=github)](https://github.com/eyestore/eyes-store-game-ui-template)
 
 ## 🎮 Professional Gaming Website Solution
 
