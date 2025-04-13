@@ -1257,6 +1257,11 @@ body.menu-open {
 
 /* Mobil cihazlar için iyileştirilmiş animasyonlar */
 @media (max-width: 768px) {
+  /* Hide legal section in mobile view */
+  .mobile-dropdown.legal-dropdown,
+  footer .legal-column {
+    display: none !important;
+  }
   .animate-pulse {
     animation-duration: 2s;
   }
