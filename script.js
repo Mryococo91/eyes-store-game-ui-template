@@ -11,7 +11,6 @@ document.addEventListener('DOMContentLoaded', function() {
    const _0xc87b = ['ZXllc3RvcmU=', 'aHR0cHM6Ly9kaXNjb3JkLmdnL0Vrd1d2RlM='];
  
    const config = {
-     checkInterval: 1000,
      copyrightText: window.atob(_0xc87b[0]),
      discordLink: window.atob(_0xc87b[1]),
      targetSelectors: [
@@ -37,44 +36,30 @@ document.addEventListener('DOMContentLoaded', function() {
    }
  
    function ensureCopyright() {
-     if (window._ensuringCopyright || window._alreadyEnsured) {
-       return; // Daha önceden yapıldıysa hiçbir şey yapma
+     // If we've already run this function, don't run it again
+     if (window._copyrightProcessed) {
+       return;
      }
- 
-     window._ensuringCopyright = true;
- 
+     
+     window._copyrightProcessed = true;
+     console.info('Telif hakkı koruması: Telif hakkı bilgisi ekleniyor...');
+     
      try {
-       let holders = document.querySelectorAll('.copyright-holder');
-       const holderCount = holders.length;
- 
-       if (holderCount === 0) {
-         console.info('Telif hakkı koruması: Eksik telif hakkı bilgisi tespit edildi. Yeniden ekleniyor...');
-         createMissingCopyrights();
-         holders = document.querySelectorAll('.copyright-holder');
-       }
- 
-       const maxProcessElements = Math.min(holders.length, 10);
-       for (let i = 0; i < maxProcessElements; i++) {
-         const holder = holders[i];
-         if (!holder.querySelector('.copyright-text') || !holder.querySelector('.copyright-text').textContent.includes('Copyright')) {
-           holder.innerHTML = createCopyrightHTML();
-         }
-         
+       createMissingCopyrights();
+       checkButtonContainers();
+       
+       // Set up observers for existing copyright holders
+       document.querySelectorAll('.copyright-holder').forEach(holder => {
          if (!holder._observed) {
            observeCopyrightElement(holder);
            holder._observed = true;
          }
-       }
- 
-       checkButtonContainers();
- 
-       window._alreadyEnsured = true; // Tek seferlik işlem için bayrağı ayarlıyoruz
-       return holders.length;
+       });
+       
+       return true;
      } catch (err) {
        console.warn('Telif hakkı koruması: Hata oluştu', err);
-       return 0;
-     } finally {
-       window._ensuringCopyright = false;
+       return false;
      }
    }
  
@@ -180,6 +165,7 @@ document.addEventListener('DOMContentLoaded', function() {
      });
  
      protectElementStyle(element);
+     element._observed = true;
    }
  
    function protectElementStyle(element) {
@@ -204,48 +190,18 @@ document.addEventListener('DOMContentLoaded', function() {
        configurable: false
      });
    }
- 
-   function monitorDOMChanges() {
-     const bodyObserver = new MutationObserver(() => {
-       if (!window._alreadyEnsured) {
-         ensureCopyright();
-       }
-     });
- 
-     bodyObserver.observe(document.body, {
-       childList: true,
-       subtree: true
-     });
- 
-     setInterval(() => {
-       if (!window._alreadyEnsured) {
-         ensureCopyright();
-       }
-     }, 5000); // 5 sn aralıklarla kontrol et
-   }
- 
+
    function initCopyrightProtection() {
-     if (window._initializingCopyright) return;
-     window._initializingCopyright = true;
- 
+     if (window._copyrightInitialized) return;
+     window._copyrightInitialized = true;
+
      if (document.readyState === 'complete') {
        ensureCopyright();
-       monitorDOMChanges();
      } else {
-       document.addEventListener('DOMContentLoaded', () => {
-         ensureCopyright();
-         monitorDOMChanges();
-       }, { once: true });
- 
        window.addEventListener('load', () => {
          ensureCopyright();
        }, { once: true });
      }
- 
-     // İlk kez gecikmeli çalıştırma
-     setTimeout(() => {
-       ensureCopyright();
-     }, 1000);
    }
  
    initCopyrightProtection();
