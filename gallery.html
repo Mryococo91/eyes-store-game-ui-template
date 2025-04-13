@@ -74,7 +74,7 @@
             <a href="server.html" class="text-white hover:text-[#10b981] transition duration-300">Server</a>
             <a href="gallery.html" class="text-[#10b981] border-b-2 border-[#10b981] pb-1 transition duration-300">Gallery</a>
             <a href="contact.html" class="text-white hover:text-[#10b981] transition duration-300">Contact</a>
-            <div class="relative group">
+            <div class="relative group hidden md:block">
               <button class="text-white hover:text-[#10b981] transition duration-300 flex items-center gap-1">
                 Legal
                 <i class="fas fa-chevron-down text-xs transition-transform duration-300 group-hover:rotate-180"></i>
@@ -118,26 +118,7 @@
             <a href="server.html" class="block text-lg text-white hover:text-[#10b981] transition duration-300">Server</a>
             <a href="gallery.html" class="block text-lg text-[#10b981] font-medium">Gallery</a>
             <a href="contact.html" class="block text-lg text-white hover:text-[#10b981] transition duration-300">Contact</a>
-            <div class="space-y-2">
-              <div class="text-lg text-white flex items-center gap-2">
-                <span>Legal</span>
-                <i class="fas fa-chevron-right text-xs text-[#10b981]"></i>
-              </div>
-              <div class="pl-4 space-y-2">
-                <a href="terms.html" class="block text-gray-400 hover:text-[#10b981] transition duration-300 flex items-center gap-2">
-                  <i class="fas fa-file-contract text-xs"></i>
-                  Terms of Service
-                </a>
-                <a href="privacy.html" class="block text-gray-400 hover:text-[#10b981] transition duration-300 flex items-center gap-2">
-                  <i class="fas fa-shield-alt text-xs"></i>
-                  Privacy Policy
-                </a>
-                <a href="rules.html" class="block text-gray-400 hover:text-[#10b981] transition duration-300 flex items-center gap-2">
-                  <i class="fas fa-gavel text-xs"></i>
-                  Rules
-                </a>
-              </div>
-            </div>
+            <!-- Legal links removed from mobile menu -->
           </div>
 
 
@@ -172,83 +153,91 @@
           </div>
 
           <!-- Gallery Filters -->
-          <div class="flex flex-wrap justify-center gap-4 mb-8" data-aos="fade-up">
-            <button class="filter-btn active px-4 py-2 rounded-lg bg-primary text-white" data-filter="all">All</button>
-            <button class="filter-btn px-4 py-2 rounded-lg bg-dark-light hover:bg-primary/20 transition duration-300" data-filter="vehicles">Vehicles</button>
-            <button class="filter-btn px-4 py-2 rounded-lg bg-dark-light hover:bg-primary/20 transition duration-300" data-filter="locations">Locations</button>
-            <button class="filter-btn px-4 py-2 rounded-lg bg-dark-light hover:bg-primary/20 transition duration-300" data-filter="events">Events</button>
+          <div class="flex flex-wrap justify-center gap-2 md:gap-4 mb-8 px-2" data-aos="fade-up">
+            <button class="filter-btn active px-3 py-2 md:px-4 md:py-2 text-sm md:text-base rounded-lg bg-primary text-white shadow-md" data-filter="all">
+              <i class="fas fa-th-large mr-1"></i> All
+            </button>
+            <button class="filter-btn px-3 py-2 md:px-4 md:py-2 text-sm md:text-base rounded-lg bg-dark-light hover:bg-primary/20 transition duration-300 shadow-md" data-filter="vehicles">
+              <i class="fas fa-car mr-1"></i> Vehicles
+            </button>
+            <button class="filter-btn px-3 py-2 md:px-4 md:py-2 text-sm md:text-base rounded-lg bg-dark-light hover:bg-primary/20 transition duration-300 shadow-md" data-filter="locations">
+              <i class="fas fa-map-marker-alt mr-1"></i> Locations
+            </button>
+            <button class="filter-btn px-3 py-2 md:px-4 md:py-2 text-sm md:text-base rounded-lg bg-dark-light hover:bg-primary/20 transition duration-300 shadow-md" data-filter="events">
+              <i class="fas fa-calendar-alt mr-1"></i> Events
+            </button>
           </div>
 
           <!-- Gallery Slider -->
-          <div class="gallery-slider-container overflow-hidden mb-12" data-aos="fade-up">
-            <div id="gallerySlider" class="flex gap-6 transition-transform duration-1000 ease-in-out">
+          <div class="gallery-slider-container overflow-hidden mb-8 md:mb-12 px-2 md:px-0" data-aos="fade-up">
+            <div id="gallerySlider" class="flex gap-3 md:gap-6 transition-transform duration-1000 ease-in-out touch-pan-x snap-x snap-mandatory">
               <!-- Gallery Items -->
-              <div class="min-w-[300px] relative overflow-hidden rounded-lg group cursor-pointer" data-category="vehicles" data-type="image">
+              <div class="min-w-[250px] md:min-w-[300px] relative overflow-hidden rounded-lg group cursor-pointer snap-center shadow-lg" data-category="vehicles" data-type="image">
                 <img src="https://mir-s3-cdn-cf.behance.net/project_modules/fs/bcadbf134903405.61de5597972dc.png" 
                      alt="Custom Vehicle" 
-                     class="w-full h-[300px] object-cover transition-transform duration-300 group-hover:scale-110">
-                <div class="absolute inset-0 bg-gradient-to-t from-dark/90 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <div class="absolute bottom-0 left-0 right-0 p-4 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                     class="w-full h-[220px] md:h-[300px] object-cover transition-transform duration-300 group-hover:scale-110">
+                <div class="absolute inset-0 bg-gradient-to-t from-dark/90 to-transparent opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300">
+                  <div class="absolute bottom-0 left-0 right-0 p-3 md:p-4 transform md:translate-y-full md:group-hover:translate-y-0 transition-transform duration-300">
                     <h3 class="text-lg font-bold text-white mb-1">Custom Vehicle</h3>
                     <p class="text-sm text-gray-300">High-performance sports car</p>
                   </div>
                 </div>
               </div>
 
-              <div class="min-w-[300px] relative overflow-hidden rounded-lg group cursor-pointer" data-category="vehicles" data-type="image">
+              <div class="min-w-[250px] md:min-w-[300px] relative overflow-hidden rounded-lg group cursor-pointer snap-center shadow-lg" data-category="vehicles" data-type="image">
                 <img src="https://mir-s3-cdn-cf.behance.net/project_modules/1400/721cf0144447875.628cc73e8e7a3.png" 
                      alt="Luxury Vehicle" 
-                     class="w-full h-[300px] object-cover transition-transform duration-300 group-hover:scale-110">
-                <div class="absolute inset-0 bg-gradient-to-t from-dark/90 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <div class="absolute bottom-0 left-0 right-0 p-4 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                     class="w-full h-[220px] md:h-[300px] object-cover transition-transform duration-300 group-hover:scale-110">
+                <div class="absolute inset-0 bg-gradient-to-t from-dark/90 to-transparent opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300">
+                  <div class="absolute bottom-0 left-0 right-0 p-3 md:p-4 transform md:translate-y-full md:group-hover:translate-y-0 transition-transform duration-300">
                     <h3 class="text-lg font-bold text-white mb-1">Luxury Vehicle</h3>
                     <p class="text-sm text-gray-300">Premium car collection</p>
                   </div>
                 </div>
               </div>
 
-              <div class="min-w-[300px] relative overflow-hidden rounded-lg group cursor-pointer" data-category="locations" data-type="image">
+              <div class="min-w-[250px] md:min-w-[300px] relative overflow-hidden rounded-lg group cursor-pointer snap-center shadow-lg" data-category="locations" data-type="image">
                 <img src="https://mir-s3-cdn-cf.behance.net/project_modules/fs/08bbfd132332239.61a6f77851b88.png" 
                      alt="Downtown Area" 
-                     class="w-full h-[300px] object-cover transition-transform duration-300 group-hover:scale-110">
-                <div class="absolute inset-0 bg-gradient-to-t from-dark/90 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <div class="absolute bottom-0 left-0 right-0 p-4 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                     class="w-full h-[220px] md:h-[300px] object-cover transition-transform duration-300 group-hover:scale-110">
+                <div class="absolute inset-0 bg-gradient-to-t from-dark/90 to-transparent opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300">
+                  <div class="absolute bottom-0 left-0 right-0 p-3 md:p-4 transform md:translate-y-full md:group-hover:translate-y-0 transition-transform duration-300">
                     <h3 class="text-lg font-bold text-white mb-1">Downtown Area</h3>
                     <p class="text-sm text-gray-300">City center exploration</p>
                   </div>
                 </div>
               </div>
 
-              <div class="min-w-[300px] relative overflow-hidden rounded-lg group cursor-pointer" data-category="locations" data-type="image">
+              <div class="min-w-[250px] md:min-w-[300px] relative overflow-hidden rounded-lg group cursor-pointer snap-center shadow-lg" data-category="locations" data-type="image">
                 <img src="https://mir-s3-cdn-cf.behance.net/project_modules/max_1200/030622144447875.628cc7377efdd.png" 
                      alt="Car Area" 
-                     class="w-full h-[300px] object-cover transition-transform duration-300 group-hover:scale-110">
-                <div class="absolute inset-0 bg-gradient-to-t from-dark/90 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <div class="absolute bottom-0 left-0 right-0 p-4 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                     class="w-full h-[220px] md:h-[300px] object-cover transition-transform duration-300 group-hover:scale-110">
+                <div class="absolute inset-0 bg-gradient-to-t from-dark/90 to-transparent opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300">
+                  <div class="absolute bottom-0 left-0 right-0 p-3 md:p-4 transform md:translate-y-full md:group-hover:translate-y-0 transition-transform duration-300">
                     <h3 class="text-lg font-bold text-white mb-1">Car Showcase</h3>
                     <p class="text-sm text-gray-300">Vehicle display area</p>
                   </div>
                 </div>
               </div>
 
-              <div class="min-w-[300px] relative overflow-hidden rounded-lg group cursor-pointer" data-category="events" data-type="image">
+              <div class="min-w-[250px] md:min-w-[300px] relative overflow-hidden rounded-lg group cursor-pointer snap-center shadow-lg" data-category="events" data-type="image">
                 <img src="https://s3-gallery.int-cdn.lcpdfrusercontent.com/monthly_2022_07/large.1213235336_2022-07-1702_23_17-FiveMbyCfx.re-KreationsDevelopmentServer.png.86c2716e2d183549b5bd471a2a8c1bd7.png" 
                      alt="Community Event" 
-                     class="w-full h-[300px] object-cover transition-transform duration-300 group-hover:scale-110">
-                <div class="absolute inset-0 bg-gradient-to-t from-dark/90 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <div class="absolute bottom-0 left-0 right-0 p-4 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                     class="w-full h-[220px] md:h-[300px] object-cover transition-transform duration-300 group-hover:scale-110">
+                <div class="absolute inset-0 bg-gradient-to-t from-dark/90 to-transparent opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300">
+                  <div class="absolute bottom-0 left-0 right-0 p-3 md:p-4 transform md:translate-y-full md:group-hover:translate-y-0 transition-transform duration-300">
                     <h3 class="text-lg font-bold text-white mb-1">Community Event</h3>
                     <p class="text-sm text-gray-300">Monthly gatherings</p>
                   </div>
                 </div>
               </div>
 
-              <div class="min-w-[300px] relative overflow-hidden rounded-lg group cursor-pointer" data-category="events" data-type="image">
+              <div class="min-w-[250px] md:min-w-[300px] relative overflow-hidden rounded-lg group cursor-pointer snap-center shadow-lg" data-category="events" data-type="image">
                 <img src="https://fiverr-res.cloudinary.com/images/q_auto,f_auto/gigs/156558976/original/5541e4abbe0496ce7de8418286c9ca876ab917a1/make-you-professional-car-or-object-photo-for-your-fivem-server.png" 
                      alt="Community Event" 
-                     class="w-full h-[300px] object-cover transition-transform duration-300 group-hover:scale-110">
-                <div class="absolute inset-0 bg-gradient-to-t from-dark/90 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <div class="absolute bottom-0 left-0 right-0 p-4 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                     class="w-full h-[220px] md:h-[300px] object-cover transition-transform duration-300 group-hover:scale-110">
+                <div class="absolute inset-0 bg-gradient-to-t from-dark/90 to-transparent opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300">
+                  <div class="absolute bottom-0 left-0 right-0 p-3 md:p-4 transform md:translate-y-full md:group-hover:translate-y-0 transition-transform duration-300">
                     <h3 class="text-lg font-bold text-white mb-1">Special Event</h3>
                     <p class="text-sm text-gray-300">Exclusive gatherings</p>
                   </div>
@@ -258,7 +247,7 @@
           </div>
 
           <!-- Filtered Gallery Grid -->
-          <div id="filteredGallery" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 hidden" data-aos="fade-up">
+          <div id="filteredGallery" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 px-2 md:px-0 hidden" data-aos="fade-up">
             <!-- Vehicles Category -->
             <div class="gallery-item relative overflow-hidden rounded-lg group cursor-pointer" data-category="vehicles" data-type="image">
               <img src="https://mir-s3-cdn-cf.behance.net/project_modules/fs/bcadbf134903405.61de5597972dc.png" 
@@ -573,9 +562,9 @@
           <div>
             <h4 class="text-white font-bold mb-4">Legal</h4>
             <ul class="space-y-2">
-              <li><a href="#" class="text-gray-400 hover:text-primary transition duration-300">Terms of Service</a></li>
-              <li><a href="#" class="text-gray-400 hover:text-primary transition duration-300">Privacy Policy</a></li>
-              <li><a href="#" class="text-gray-400 hover:text-primary transition duration-300">Rules</a></li>
+              <li><a href="terms.html" class="text-gray-400 hover:text-primary transition duration-300">Terms of Service</a></li>
+              <li><a href="privacy.html" class="text-gray-400 hover:text-primary transition duration-300">Privacy Policy</a></li>
+              <li><a href="rules.html" class="text-gray-400 hover:text-primary transition duration-300">Rules</a></li>
             </ul>
           </div>
           
