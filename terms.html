@@ -82,28 +82,51 @@
             </div>
           </div>
           <div class="md:hidden flex items-center">
-            <button id="mobile-menu-button" class="text-white hover:text-[#10b981] focus:outline-none p-2">
+            <button id="mobile-menu-button" class="text-white hover:text-[#10b981] focus:outline-none p-2 relative group">
+              <div class="absolute -inset-1 bg-primary/20 rounded-full blur opacity-0 group-hover:opacity-50 transition-all duration-300"></div>
               <i class="fas fa-bars text-xl"></i>
             </button>
           </div>
         </div>
       </div>
       <!-- Mobile Menu -->
-      <div id="mobile-menu" class="hidden md:hidden fixed inset-x-0 top-[73px] bg-[#1a1d24]/95 backdrop-blur-md transition-all duration-300 ease-in-out">
-        <div class="px-6 py-4 space-y-3">
-          <div class="text-2xl font-bold mb-6">
-            <span class="text-white">Terms of</span>
-            <span class="text-[#10b981]">Service</span>
-          </div>
-          <p class="text-gray-400 text-sm mb-8">Our terms and conditions</p>
+      <div id="mobile-menu" class="hidden md:hidden fixed inset-x-0 top-[73px] bg-dark-light/95 backdrop-blur-md transition-all duration-300 ease-in-out transform translate-y-[-20px] opacity-0 rounded-b-xl shadow-lg border border-white/5">
+        <div class="px-4 py-4 space-y-2">
+          <a href="index.html" class="block px-4 py-3 text-white hover:text-primary hover:bg-dark/50 rounded-lg transition duration-300 flex items-center">
+            <i class="fas fa-home mr-2"></i> Home
+          </a>
+          <a href="about.html" class="block px-4 py-3 text-white hover:text-primary hover:bg-dark/50 rounded-lg transition duration-300 flex items-center">
+            <i class="fas fa-info-circle mr-2"></i> About
+          </a>
+          <a href="server.html" class="block px-4 py-3 text-white hover:text-primary hover:bg-dark/50 rounded-lg transition duration-300 flex items-center">
+            <i class="fas fa-server mr-2"></i> Server
+          </a>
+          <a href="gallery.html" class="block px-4 py-3 text-white hover:text-primary hover:bg-dark/50 rounded-lg transition duration-300 flex items-center">
+            <i class="fas fa-images mr-2"></i> Gallery
+          </a>
+          <a href="contact.html" class="block px-4 py-3 text-white hover:text-primary hover:bg-dark/50 rounded-lg transition duration-300 flex items-center">
+            <i class="fas fa-envelope mr-2"></i> Contact
+          </a>
           
-          <!-- Navigation Links -->
-          <div class="space-y-3">
-            <a href="index.html" class="block text-lg text-white hover:text-[#10b981] transition duration-300">Home</a>
-            <a href="about.html" class="block text-lg text-white hover:text-[#10b981] transition duration-300">About</a>
-            <a href="server.html" class="block text-lg text-white hover:text-[#10b981] transition duration-300">Server</a>
-            <a href="gallery.html" class="block text-lg text-white hover:text-[#10b981] transition duration-300">Gallery</a>
-            <a href="contact.html" class="block text-lg text-white hover:text-[#10b981] transition duration-300">Contact</a>
+          <!-- Legal Dropdown in Mobile Menu -->
+          <div class="mobile-dropdown legal-dropdown">
+            <button class="w-full text-left px-4 py-3 text-primary bg-dark/50 rounded-lg transition duration-300 flex items-center justify-between">
+              <div class="flex items-center">
+                <i class="fas fa-gavel mr-2"></i> Legal
+              </div>
+              <i class="fas fa-chevron-down transition-transform duration-300"></i>
+            </button>
+            <div class="mobile-dropdown-content pl-8 space-y-2 mt-1 overflow-hidden">
+              <a href="terms.html" class="block px-4 py-2 text-primary hover:bg-dark/50 rounded-lg transition duration-300 flex items-center" data-mobile-link="true">
+                <i class="fas fa-file-contract mr-2 text-xs"></i> Terms
+              </a>
+              <a href="privacy.html" class="block px-4 py-2 text-white hover:text-primary hover:bg-dark/50 rounded-lg transition duration-300 flex items-center" data-mobile-link="true">
+                <i class="fas fa-shield-alt mr-2 text-xs"></i> Privacy
+              </a>
+              <a href="rules.html" class="block px-4 py-2 text-white hover:text-primary hover:bg-dark/50 rounded-lg transition duration-300 flex items-center" data-mobile-link="true">
+                <i class="fas fa-gavel mr-2 text-xs"></i> Rules
+              </a>
+            </div>
           </div>
         </div>
       </div>
@@ -236,8 +259,8 @@
             </ul>
           </div>
           
-          <!-- Column 3 -->
-          <div>
+          <!-- Column 3 (Legal - hidden on mobile) -->
+          <div class="legal-column">
             <h4 class="text-white font-bold mb-4">Legal</h4>
             <ul class="space-y-2">
               <li><a href="terms.html" class="text-primary transition duration-300">Terms of Service</a></li>
@@ -285,6 +308,7 @@
     </footer>
 
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="mobile-menu.js"></script>
     <script src="script.js"></script>
   </body>
 </html> 
