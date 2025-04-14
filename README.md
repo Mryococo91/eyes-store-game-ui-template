@@ -1,5 +1,8 @@
 # Eyes Store Game UI Template
 
+![image](https://github.com/user-attachments/assets/1c8425c5-c913-4334-a937-b2ca243e2fd0)
+
+
 Premium gaming website template optimized for SEO, AdSense, and multiple gaming platforms.
 
 [![YouTube Tutorial](https://img.shields.io/badge/YouTube-Tutorial-red?style=for-the-badge&logo=youtube)](https://youtu.be/CGxN356wccc)
