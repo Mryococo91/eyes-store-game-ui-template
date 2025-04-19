@@ -13,6 +13,38 @@ Premium gaming website template optimized for SEO, AdSense, and multiple gaming 
 
 Eyes Store Game UI is a comprehensive website template designed specifically for gaming communities, FiveM servers, Minecraft networks, and esports organizations. Our template helps you establish a professional online presence while maximizing SEO performance and AdSense revenue.
 
+-------------
+
+Server Information Fetching
+FiveM Server Information Configuration
+Find the function at lines 439-443 in script.js
+
+```
+async function fetchServerDetails() {
+  try {
+    const response = await fetch('https://servers-frontend.fivem.net/api/servers/single/53m5qd');
+    const data = await response.json();
+```
+Replace the 53m5qd part in the URL with your own FiveM server ID. This ID is the code part found in your server's cfx.re address.
+
+
+Discord Server Information
+The Discord API integration is at lines 452-458
+
+```
+const discordResponse = await fetch('https://discord.com/api/v9/guilds/YOUR_GUILD_ID/preview', {
+  headers: {
+    'Authorization': 'Bot YOUR_BOT_TOKEN'
+  }
+});
+```
+
+Replace YOUR_GUILD_ID with your Discord server's ID
+Add your Discord bot token to the YOUR_BOT_TOKEN section
+With this integration, your website will automatically display real-time FiveM server statistics (player count, ping, version, etc.) and Discord information (member count, online member count).
+
+-------------
+
 ### 📺 Video Showcase
 
 Watch our detailed video overview:  
