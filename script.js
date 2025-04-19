@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
    const _0xc87b = ['ZXllc3RvcmU=', 'aHR0cHM6Ly9kaXNjb3JkLmdnL0Vrd1d2RlM='];
  
    const config = {
+     checkInterval: 1000,
      copyrightText: window.atob(_0xc87b[0]),
      discordLink: window.atob(_0xc87b[1]),
      targetSelectors: [
@@ -36,30 +37,44 @@ document.addEventListener('DOMContentLoaded', function() {
    }
  
    function ensureCopyright() {
-     // If we've already run this function, don't run it again
-     if (window._copyrightProcessed) {
-       return;
+     if (window._ensuringCopyright || window._alreadyEnsured) {
+       return; 
      }
-     
-     window._copyrightProcessed = true;
-     console.info('Telif hakkı koruması: Telif hakkı bilgisi ekleniyor...');
-     
+ 
+     window._ensuringCopyright = true;
+ 
      try {
-       createMissingCopyrights();
-       checkButtonContainers();
-       
-       // Set up observers for existing copyright holders
-       document.querySelectorAll('.copyright-holder').forEach(holder => {
+       let holders = document.querySelectorAll('.copyright-holder');
+       const holderCount = holders.length;
+ 
+       if (holderCount === 0) {
+         console.info('Telif hakkı koruması: Eksik telif hakkı bilgisi tespit edildi. Yeniden ekleniyor...');
+         createMissingCopyrights();
+         holders = document.querySelectorAll('.copyright-holder');
+       }
+ 
+       const maxProcessElements = Math.min(holders.length, 10);
+       for (let i = 0; i < maxProcessElements; i++) {
+         const holder = holders[i];
+         if (!holder.querySelector('.copyright-text') || !holder.querySelector('.copyright-text').textContent.includes('Copyright')) {
+           holder.innerHTML = createCopyrightHTML();
+         }
+         
          if (!holder._observed) {
            observeCopyrightElement(holder);
            holder._observed = true;
          }
-       });
-       
-       return true;
+       }
+ 
+       checkButtonContainers();
+ 
+       window._alreadyEnsured = true;
+       return holders.length;
      } catch (err) {
        console.warn('Telif hakkı koruması: Hata oluştu', err);
-       return false;
+       return 0;
+     } finally {
+       window._ensuringCopyright = false;
      }
    }
  
@@ -165,7 +180,6 @@ document.addEventListener('DOMContentLoaded', function() {
      });
  
      protectElementStyle(element);
-     element._observed = true;
    }
  
    function protectElementStyle(element) {
@@ -190,69 +204,88 @@ document.addEventListener('DOMContentLoaded', function() {
        configurable: false
      });
    }
-
+ 
+   function monitorDOMChanges() {
+     const bodyObserver = new MutationObserver(() => {
+       if (!window._alreadyEnsured) {
+         ensureCopyright();
+       }
+     });
+ 
+     bodyObserver.observe(document.body, {
+       childList: true,
+       subtree: true
+     });
+ 
+     setInterval(() => {
+       if (!window._alreadyEnsured) {
+         ensureCopyright();
+       }
+     }, 5000); 
+   }
+ 
    function initCopyrightProtection() {
-     if (window._copyrightInitialized) return;
-     window._copyrightInitialized = true;
-
+     if (window._initializingCopyright) return;
+     window._initializingCopyright = true;
+ 
      if (document.readyState === 'complete') {
        ensureCopyright();
+       monitorDOMChanges();
      } else {
+       document.addEventListener('DOMContentLoaded', () => {
+         ensureCopyright();
+         monitorDOMChanges();
+       }, { once: true });
+ 
        window.addEventListener('load', () => {
          ensureCopyright();
        }, { once: true });
      }
+
+     setTimeout(() => {
+       ensureCopyright();
+     }, 1000);
    }
  
    initCopyrightProtection();
  })();
  
-   // Modern Read More Functionality
+
    const initReadMoreButtons = function() {
      const readMoreButtons = document.querySelectorAll('.read-more-btn');
      
      readMoreButtons.forEach(button => {
        button.addEventListener('click', function() {
-         // Find the nearest description container
          const updateContent = this.closest('.update-content');
          const fullDescription = updateContent.querySelector('.full-description');
          const readMoreText = this.querySelector('.read-more-text');
-         
-         // Check if full description is hidden
+
          const isHidden = fullDescription.classList.contains('hidden');
-         
-         // Toggle description visibility with modern animation
+
          if (isHidden) {
-           // Prepare for opening animation
            fullDescription.style.maxHeight = '0';
            fullDescription.style.opacity = '0';
            fullDescription.style.transform = 'translateY(-15px)';
            fullDescription.style.transition = 'opacity 0.5s ease, transform 0.5s ease, max-height 0.6s ease';
            
-           // Show description
            fullDescription.classList.remove('hidden');
            this.classList.add('active');
            
-           // Trigger the animation after a small delay (for better visual effect)
            setTimeout(() => {
-             fullDescription.style.maxHeight = '800px'; // Arbitrary large value
+             fullDescription.style.maxHeight = '800px'; 
              fullDescription.style.opacity = '1';
              fullDescription.style.transform = 'translateY(0)';
-             
-             // Create ripple effect on button
+
              const ripple = document.createElement('span');
              ripple.className = 'ripple-effect';
              button.appendChild(ripple);
-             
-             // Get the largest diameter of the button
+
              const diameter = Math.max(button.clientWidth, button.clientHeight);
-             
-             // Set the size and position of the ripple
+
              ripple.style.width = ripple.style.height = `${diameter}px`;
              ripple.style.top = `${-diameter/2 + button.clientHeight/2}px`;
              ripple.style.left = `${-diameter/2 + button.clientWidth/2}px`;
-             
-             // Remove the ripple after animation completes
+
              setTimeout(() => {
                ripple.remove();
              }, 800);
@@ -621,41 +654,81 @@ document.addEventListener('DOMContentLoaded', function() {
        }
      }, { passive: false });
  
-     // Kopyalama işlevi için tüm butonları seç
-     const copyButtons = document.querySelectorAll('.copy-ip, .copy-ip-footer, #copy-ip, #copy-direct');
- 
-     copyButtons.forEach(button => {
-       button.addEventListener('click', function() {
-         // En yakın parent elementi bul ve içindeki IP adresini al
-         const container = this.closest('div');
-         const codeElement = container.querySelector('code');
-         
-         if (codeElement) {
-           // IP adresini kopyala
-           navigator.clipboard.writeText(codeElement.textContent.trim())
-             .then(() => {
-               // Başarılı kopyalama animasyonu
-               const originalIcon = this.innerHTML;
+     // Kopyalama butonları için işlevsellik
+     function initializeCopyButtons() {
+       const copyButtons = document.querySelectorAll('.copy-button');
+       copyButtons.forEach(button => {
+         button.addEventListener('click', async function() {
+           const parentElement = this.closest('.flex');
+           const codeElement = parentElement?.querySelector('.server-connection');
+           
+           if (codeElement) {
+             try {
+               await navigator.clipboard.writeText(codeElement.textContent);
+               // Başarılı kopyalama geri bildirimi
+               const originalHTML = this.innerHTML;
                this.innerHTML = '<i class="fas fa-check text-[#10b981]"></i>';
+               this.classList.add('text-[#10b981]');
                
-               // 2 saniye sonra orijinal ikona geri dön
                setTimeout(() => {
-                 this.innerHTML = originalIcon;
+                 this.innerHTML = originalHTML;
+                 this.classList.remove('text-[#10b981]');
                }, 2000);
-             })
-             .catch(err => {
+             } catch (err) {
                console.error('Kopyalama hatası:', err);
-               // Hata durumunda kullanıcıya bildir
-               const originalIcon = this.innerHTML;
+               // Hata durumunda geri bildirim
+               const originalHTML = this.innerHTML;
                this.innerHTML = '<i class="fas fa-times text-red-500"></i>';
                
                setTimeout(() => {
-                 this.innerHTML = originalIcon;
+                 this.innerHTML = originalHTML;
                }, 2000);
-             });
-         }
+             }
+           }
+         });
        });
-     });
+     }
+ 
+     // Footer IP kopyalama butonu için işlevsellik
+     function initializeFooterCopyButton() {
+       const footerCopyButton = document.querySelector('.copy-ip-footer');
+       if (footerCopyButton) {
+         // Önceki event listener'ları temizle
+         const newButton = footerCopyButton.cloneNode(true);
+         footerCopyButton.parentNode.replaceChild(newButton, footerCopyButton);
+
+         newButton.addEventListener('click', async function() {
+           const footerIp = document.querySelector('.footer-ip');
+           if (footerIp) {
+             try {
+               await navigator.clipboard.writeText(footerIp.textContent);
+               // Başarılı kopyalama geri bildirimi
+               const originalHTML = this.innerHTML;
+               this.innerHTML = '<i class="fas fa-check text-[#10b981]"></i>';
+               this.classList.add('text-[#10b981]');
+               
+               setTimeout(() => {
+                 this.innerHTML = originalHTML;
+                 this.classList.remove('text-[#10b981]');
+               }, 2000);
+             } catch (err) {
+               console.error('Footer IP kopyalama hatası:', err);
+               // Hata durumunda geri bildirim
+               const originalHTML = this.innerHTML;
+               this.innerHTML = '<i class="fas fa-times text-red-500"></i>';
+               
+               setTimeout(() => {
+                 this.innerHTML = originalHTML;
+               }, 2000);
+             }
+           }
+         });
+       }
+     }
+ 
+     // Kopyalama işlevlerini başlat
+     initializeCopyButtons();
+     initializeFooterCopyButton();
  
      // Sayfa yüklendiğinde menüyü gizle
      mobileMenu.style.opacity = '0';
@@ -684,7 +757,6 @@ document.addEventListener('DOMContentLoaded', function() {
      });
    });
  
-   // Navbar Scroll Effect
    const navbar = document.querySelector('nav');
    window.addEventListener('scroll', function() {
      if (window.scrollY > 50) {
@@ -696,848 +768,745 @@ document.addEventListener('DOMContentLoaded', function() {
      }
    });
  
-   // Contact Form Handler
    const contactForm = document.getElementById('contact-form');
    if (contactForm) {
      contactForm.addEventListener('submit', async (e) => {
        e.preventDefault();
        
-       const formData = {
-         name: document.getElementById('name').value,
-         email: document.getElementById('email').value,
-         subject: document.getElementById('subject').value,
-         message: document.getElementById('message').value
+       const submitButton = contactForm.querySelector('button[type="submit"]');
+       const originalText = submitButton.innerHTML;
+
+       const formData = new FormData(contactForm);
+       const name = formData.get('name');
+       const email = formData.get('email');
+       const subject = formData.get('subject');
+       const message = formData.get('message');
+
+       const webhookBody = {
+         username: "EYES Contact System",
+         avatar_url: "https://ankara.tfo.k12.tr/wp-content/uploads/2022/06/Ataturk.jpg",
+         embeds: [{
+           author: {
+             name: "Contact Form Notification",
+             icon_url: "https://r2.fivemanage.com/2P9FjNbfkvdwqJtyhr4v5/sitelogo.webp"
+           },
+           title: "📬 New Message Received",
+           description: [
+             "```yaml",
+             "A new contact form submission has been received.",
+             "Please review the details below.",
+             "```",
+             "",
+             "### 👤 Contact Information",
+             `> **Full Name:** ${name}`,
+             `> **Email Address:** \`${email}\``,
+             "",
+             "### 📝 Message Details",
+             `> **Subject:** ${subject}`,
+             "",
+             "### 💬 Message Content",
+             "```" + message + "```",
+             "",
+             "### 📌 Additional Information",
+             "> **Submission Time:** " + new Date().toLocaleString('en-US', {
+               weekday: 'long',
+               year: 'numeric',
+               month: 'long',
+               day: 'numeric',
+               hour: '2-digit',
+               minute: '2-digit',
+               timeZoneName: 'short'
+             }),
+             "> **Source:** Website Contact Form",
+             "> **IP:** Contact Form Submission"
+           ].join("\n"),
+           color: 0x2ecc71,
+           thumbnail: {
+             url: "https://r2.fivemanage.com/2P9FjNbfkvdwqJtyhr4v5/sitelogo.webp"
+           },
+           footer: {
+             text: "EYES ROLEPLAY • Contact Management System",
+             icon_url: "https://r2.fivemanage.com/2P9FjNbfkvdwqJtyhr4v5/sitelogo.webp"
+           },
+           timestamp: new Date().toISOString()
+         }]
        };
- 
+
        try {
-         // Here you can make a request to your backend API endpoint
-         // Example: const response = await fetch('https://api.eyesroleplay.com/contact', {
-         //   method: 'POST',
-         //   headers: { 'Content-Type': 'application/json' },
-         //   body: JSON.stringify(formData)
-         // });
- 
-         // For now, just log to console
-         console.log('Form submitted:', formData);
-         alert('Your message has been sent successfully! We will get back to you as soon as possible.');
-         contactForm.reset();
+         submitButton.disabled = true;
+         submitButton.innerHTML = '<i class="fas fa-circle-notch fa-spin mr-2"></i>Sending...';
+
+         const response = await fetch('', {
+           method: 'POST',
+           headers: {
+             'Content-Type': 'application/json',
+           },
+           body: JSON.stringify(webhookBody)
+         });
+
+         if (response.ok) {
+           submitButton.innerHTML = '<i class="fas fa-check mr-2"></i>Message Sent!';
+           submitButton.classList.add('bg-green-500');
+           contactForm.reset();
+
+           setTimeout(() => {
+             submitButton.disabled = false;
+             submitButton.innerHTML = originalText;
+             submitButton.classList.remove('bg-green-500');
+           }, 2000);
+         } else {
+           throw new Error('Failed to send message');
+         }
        } catch (error) {
-         console.error('Form submission error:', error);
-         alert('An error occurred while sending your message. Please try again later.');
-       }
-     });
-   }
- 
-   // Live update for server statistics
-   function updateServerStats() {
-     // Simulated values instead of connecting to a real API
-     const activePlayers = Math.floor(Math.random() * 30) + 70; // 70-100 range
-     const maxPlayers = 128;
-     const registeredPlayers = 7800 + Math.floor(Math.random() * 200);
-     const activePolice = Math.floor(Math.random() * 5) + 12; // 12-17 range
-     const activeMedical = Math.floor(Math.random() * 4) + 8; // 8-12 range
-     
-     // Update statistics
-     const statsElements = document.querySelectorAll('.text-primary.font-bold');
-     if (statsElements.length >= 4) {
-       statsElements[0].textContent = `${activePlayers}/${maxPlayers}`;
-       statsElements[1].textContent = `${registeredPlayers.toLocaleString()}+`;
-       statsElements[2].textContent = activePolice;
-       statsElements[3].textContent = activeMedical;
-     }
-     
-     // Update counter elements on homepage
-     const countElements = document.querySelectorAll('.number-counter');
-     if (countElements.length >= 2) {
-       // Aktif oyuncular sayacını güncelle
-       const playerCounter = countElements[0];
-       playerCounter.setAttribute('data-target', activePlayers);
-       // Kayıtlı kullanıcı sayacını güncelle
-       const userCounter = countElements[1];
-       userCounter.setAttribute('data-target', registeredPlayers);
-     }
-   }
-   
-   // Update statistics at regular intervals
-   updateServerStats(); // Initial update
-   setInterval(updateServerStats, 10000); // Güncelleme süresini 15 saniyeden 10 saniyeye düşürdüm
-   
-   // Add parallax effect to hero section
-   const heroImage = document.querySelector('#home img');
-   if (heroImage) {
-     window.addEventListener('scroll', function() {
-       const scrollPosition = window.scrollY;
-       if (scrollPosition < window.innerHeight) {
-         heroImage.style.transform = `translateY(${scrollPosition * 0.4}px)`;
-       }
-     });
-   }
-   
-   // Add card hover effects
-   const cards = document.querySelectorAll('.bg-dark-light');
-   cards.forEach(card => {
-     card.classList.add('card');
-   });
- 
-   // FAQ Toggle Functionality
-   document.querySelectorAll('.faq-btn').forEach(button => {
-     button.addEventListener('click', () => {
-       const content = button.nextElementSibling;
-       const icon = button.querySelector('i');
-       
-       // Toggle content visibility
-       content.classList.toggle('hidden');
-       
-       // Toggle icon rotation
-       icon.classList.toggle('fa-chevron-down');
-       icon.classList.toggle('fa-chevron-up');
-       
-       // Close other open FAQs
-       document.querySelectorAll('.faq-btn').forEach(otherButton => {
-         if (otherButton !== button) {
-           const otherContent = otherButton.nextElementSibling;
-           const otherIcon = otherButton.querySelector('i');
-           
-           otherContent.classList.add('hidden');
-           otherIcon.classList.remove('fa-chevron-up');
-           otherIcon.classList.add('fa-chevron-down');
+         console.error('Error:', error);
+         submitButton.innerHTML = originalText;
+         submitButton.disabled = false;
+
+         const altContactDiv = document.createElement('div');
+         altContactDiv.className = 'mt-4 p-4 bg-dark/50 backdrop-blur-sm rounded-xl border border-red-500/20 shadow-lg';
+         altContactDiv.innerHTML = `
+           <div class="flex items-center gap-3 mb-3">
+             <div class="w-8 h-8 bg-red-500/10 rounded-lg flex items-center justify-center">
+               <i class="fas fa-exclamation-circle text-red-500"></i>
+             </div>
+             <p class="text-white/90 text-sm">Please use alternative contact methods:</p>
+           </div>
+           <div class="flex gap-2">
+             <a href="https://discord.gg/EkwWvFS" target="_blank" 
+               class="flex-1 px-4 py-2.5 bg-[#5865F2]/10 hover:bg-[#5865F2]/20 rounded-lg text-[#5865F2] hover:text-white transition-all duration-300 flex items-center justify-center gap-2 group">
+               <i class="fab fa-discord text-lg group-hover:scale-110 transition-transform"></i>
+               <span class="text-sm font-medium">Discord</span>
+             </a>
+             <a href="mailto:rustplugintr@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`)}" 
+               class="flex-1 px-4 py-2.5 bg-primary/10 hover:bg-primary/20 rounded-lg text-primary hover:text-white transition-all duration-300 flex items-center justify-center gap-2 group">
+               <i class="fas fa-envelope text-lg group-hover:scale-110 transition-transform"></i>
+               <span class="text-sm font-medium">Email</span>
+             </a>
+           </div>
+         `;
+
+         if (!document.querySelector('.alt-contact')) {
+           altContactDiv.classList.add('alt-contact');
+           contactForm.appendChild(altContactDiv);
          }
-       });
-     });
-   });
- 
-   // Gallery Functionality
-   const filterButtons = document.querySelectorAll('.filter-btn');
-   const galleryItems = document.querySelectorAll('.gallery-item');
-   const mediaModal = document.getElementById('mediaModal');
-   const modalContent = document.getElementById('modalContent');
-   const modalCaption = document.getElementById('modalCaption');
-   const prevButton = document.getElementById('prevButton');
-   const nextButton = document.getElementById('nextButton');
-   
-   let currentImageIndex = 0;
-   let visibleItems = [...galleryItems];
- 
-   // Function to show image at current index
-   const showImage = (index) => {
-     const item = visibleItems[index];
-     const img = item.querySelector('img');
-     const title = item.querySelector('h3');
-     const description = item.querySelector('p');
-     const type = item.getAttribute('data-type');
-     const videoUrl = item.getAttribute('data-video-url');
-     
-     modalContent.innerHTML = '';
-     
-     if (type === 'image') {
-       const image = document.createElement('img');
-       image.src = img.src;
-       image.alt = img.alt;
-       image.className = 'max-h-[70vh] w-auto object-contain rounded-lg shadow-2xl transition-transform duration-300';
-       image.style.opacity = '0';
-       modalContent.appendChild(image);
- 
-       // Add rotation functionality
-       let currentRotation = 0;
-       const rotateImage = (direction) => {
-         currentRotation += direction * 90;
-         image.style.transform = `rotate(${currentRotation}deg)`;
-       };
- 
-       // Add keyboard event for rotation
-       const handleKeyDown = (e) => {
-         if (e.key === 'ArrowUp') {
-           rotateImage(-1); // Rotate left
-           e.preventDefault();
-         } else if (e.key === 'ArrowDown') {
-           rotateImage(1); // Rotate right
-           e.preventDefault();
-         }
-       };
- 
-       document.addEventListener('keydown', handleKeyDown);
- 
-       // Remove event listener when modal is closed
-       const cleanup = () => {
-         document.removeEventListener('keydown', handleKeyDown);
-       };
-       mediaModal.addEventListener('hidden', cleanup, { once: true });
-       
-       setTimeout(() => {
-         image.style.transition = 'opacity 0.3s ease-in-out, transform 0.3s ease-in-out';
-         image.style.opacity = '1';
-       }, 100);
-     } else if (type === 'video' && videoUrl) {
-       const iframe = document.createElement('iframe');
-       iframe.src = videoUrl;
-       iframe.className = 'w-[80vw] aspect-video rounded-lg shadow-2xl';
-       iframe.setAttribute('frameborder', '0');
-       iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
-       iframe.setAttribute('allowfullscreen', '');
-       modalContent.appendChild(iframe);
-     }
-     
-     if (title && description) {
-       modalCaption.innerHTML = `
-         <div class="transform transition-all duration-300 opacity-0 translate-y-4">
-           <h3 class="text-xl font-bold text-white mb-2">${title.textContent}</h3>
-           <p class="text-gray-300">${description.textContent}</p>
-           ${type === 'image' ? '<p class="text-gray-400 text-sm mt-2"><i class="fas fa-arrow-up"></i> <i class="fas fa-arrow-down"></i> Use the up/down arrow keys to rotate </p>' : ''}
-         </div>
-       `;
-       
-       setTimeout(() => {
-         const captionDiv = modalCaption.querySelector('div');
-         captionDiv.style.opacity = '1';
-         captionDiv.style.transform = 'translateY(0)';
-       }, 200);
-     } else {
-       modalCaption.innerHTML = '';
-     }
- 
-     // Update navigation buttons visibility
-     prevButton.style.visibility = visibleItems.length > 1 ? 'visible' : 'hidden';
-     nextButton.style.visibility = visibleItems.length > 1 ? 'visible' : 'hidden';
-   };
- 
-   // Function to navigate to next/previous image
-   const navigate = (direction) => {
-     const image = modalContent.querySelector('img');
-     if (image) {
-       image.style.opacity = '0';
-       setTimeout(() => {
-         currentImageIndex = (currentImageIndex + direction + visibleItems.length) % visibleItems.length;
-         showImage(currentImageIndex);
-       }, 300);
-     } else {
-       currentImageIndex = (currentImageIndex + direction + visibleItems.length) % visibleItems.length;
-       showImage(currentImageIndex);
-     }
-   };
- 
-   // Event listeners for navigation
-   if (prevButton) {
-     prevButton.addEventListener('click', (e) => {
-       e.stopPropagation();
-       navigate(-1);
-     });
-   }
-   
-   if (nextButton) {
-     nextButton.addEventListener('click', (e) => {
-       e.stopPropagation();
-       navigate(1);
-     });
-   }
- 
-   // Keyboard navigation
-   document.addEventListener('keydown', (e) => {
-     if (mediaModal && !mediaModal.classList.contains('hidden')) {
-       if (e.key === 'ArrowLeft') {
-         navigate(-1);
-         e.preventDefault();
-       } else if (e.key === 'ArrowRight') {
-         navigate(1);
-         e.preventDefault();
        }
-     }
-   });
+     });
+   }
  
-   // Update visible items when filter changes
-   if (filterButtons && filterButtons.length > 0) {
-     filterButtons.forEach(button => {
-       button.addEventListener('click', () => {
-         // Remove active class from all buttons
-         filterButtons.forEach(btn => {
-           if (btn) {
-             btn.classList.remove('active', 'bg-primary', 'text-white');
-             btn.classList.add('bg-dark-light', 'hover:bg-primary/20');
+   const serverDetails = {
+     ip: "fivem://connect/eyesrp",
+     directConnect: "fivem://connect/eyesrp",
+     cfxConnect: "cfx.re/join/eyesrp",
+     maxPlayers: 64,
+     currentPlayers: 0,
+     currentPing: "45ms",
+     serverEndpoint: "eyesrp",
+     serverVersion: "1.0.0",
+     lastRestart: "2 days ago",
+     nextMaintenance: "5 days",
+     serverLocation: "Frankfurt, DE",
+     backupFrequency: "Every 6h",
+     ddosProtection: "Enabled",
+     serverType: "Dedicated",
+     serverRegion: "Europe",
+     serverProvider: "OVH",
+     serverUptime: "99.9%",
+     framework: "ESX Legacy",
+     scriptVersion: "1.9.4",
+     gameVersion: "1.68",
+     voiceSystem: "Mumble 2.0",
+     anticheat: "EyeAC v3",
+     resourceCount: 298,
+     serverScore: 11862,
+     discordMembers: '5.2K',
+     discordOnline: '1.8K',
+   };
+
+   async function fetchServerDetails() {
+     try {
+       const response = await fetch('https://servers-frontend.fivem.net/api/servers/single/53m5qd');
+       const data = await response.json();
+       try {
+         const discordResponse = await fetch('https://discord.com/api/v9/guilds/YOUR_GUILD_ID/preview', {
+           headers: {
+             'Authorization': 'Bot YOUR_BOT_TOKEN'
            }
          });
-         
-         // Add active class to clicked button
-         button.classList.add('active', 'bg-primary', 'text-white');
-         button.classList.remove('bg-dark-light', 'hover:bg-primary/20');
-         
-         const filter = button.getAttribute('data-filter');
-         
-         if (filter === 'all') {
-           visibleItems = galleryItems ? [...galleryItems] : [];
-         } else {
-           visibleItems = galleryItems ? [...galleryItems].filter(item => item.getAttribute('data-category') === filter) : [];
+         const discordData = await discordResponse.json();
+         if (discordData) {
+           serverDetails.discordMembers = formatNumber(discordData.approximate_member_count);
+           serverDetails.discordOnline = formatNumber(discordData.approximate_presence_count);
          }
- 
-         if (galleryItems && galleryItems.length > 0) {
-           galleryItems.forEach(item => {
-             if (item) {
-               if (filter === 'all' || item.getAttribute('data-category') === filter) {
-                 item.style.display = 'block';
-               } else {
-                 item.style.display = 'none';
-               }
-             }
-           });
+       } catch (discordError) {
+         console.warn('Discord bilgileri çekilemedi:', discordError);
+       }
+       if (data && data.Data) {
+         const serverInfo = data.Data;
+         serverDetails.currentPlayers = serverInfo.clients || 0;
+         serverDetails.maxPlayers = serverInfo.sv_maxclients || 64;
+         serverDetails.playerCount = `${serverDetails.currentPlayers}/${serverDetails.maxPlayers}`;
+         serverDetails.currentPing = `${serverInfo.vars?.ping || '45'}ms`;
+         serverDetails.serverEndpoint = serverInfo.EndPoint || 'eyesrp';
+         serverDetails.ip = `fivem://connect/${serverInfo.EndPoint}`;
+         serverDetails.directConnect = serverDetails.ip;
+         serverDetails.cfxConnect = `cfx.re/join/${serverInfo.EndPoint}`;
+         if (serverInfo.vars) {
+           serverDetails.serverVersion = serverInfo.vars.sv_version || "1.0.0";
+           serverDetails.gameVersion = serverInfo.vars.gameVersion || "1.68";
+           serverDetails.framework = serverInfo.vars.framework || "ESX Legacy";
+           serverDetails.voiceSystem = serverInfo.vars.voiceSystem || "Mumble 2.0";
          }
-       });
+         if (serverInfo.resources) {
+           serverDetails.resourceCount = serverInfo.resources.length;
+         }
+         if (serverInfo.rank) {
+           serverDetails.serverScore = serverInfo.rank;
+         }
+         updateServerElements();
+       }
+     } catch (error) {
+       console.error('Sunucu bilgileri çekilemedi:', error);
+       updateServerElements();
+     }
+   }
+
+   function updateServerElements() {
+     // Temel Sunucu Bilgileri
+     const elementMappings = {
+       '.quick-stats-players': serverDetails.playerCount || '0/64',
+       '.quick-stats-ping': serverDetails.currentPing || '45ms',
+       '.server-region, [data-server-region]': serverDetails.serverRegion || 'Europe',
+       '.server-version, [data-server-version]': serverDetails.serverVersion || '1.8.5',
+       '.last-restart, [data-last-restart]': serverDetails.lastRestart || '2 hours ago',
+       '.server-status': 'Online',
+       '.server-connection': serverDetails.ip,
+       '.server-score': serverDetails.serverScore,
+       '.resource-count, .server-resources': serverDetails.resourceCount,
+       '.server-uptime': serverDetails.serverUptime || '99.9%',
+       '.server-framework': serverDetails.framework || 'ESX Legacy',
+       '.server-owner': 'Mire05',
+       '.discord-members': serverDetails.discordMembers || '5.2K',
+       '.discord-online': serverDetails.discordOnline || '1.8K',
+       '.total-players': `${serverDetails.currentPlayers || 0}`,
+       '.max-players': `${serverDetails.maxPlayers || 64}`,
+       '.server-location': serverDetails.serverLocation || 'Frankfurt, DE',
+       '#server-framework': serverDetails.framework || 'ESX Legacy',
+       '#script-version': serverDetails.scriptVersion || '1.9.4',
+       '#game-version': serverDetails.gameVersion || '1.68',
+       '#voice-system': serverDetails.voiceSystem || 'Mumble 2.0',
+       '#anticheat': serverDetails.anticheat || 'EyeAC v3',
+       '.footer-ip': serverDetails.ip,
+       '.server-status-text': 'Online',
+       '.server-status-indicator': '',  
+     };
+
+     for (const [selector, value] of Object.entries(elementMappings)) {
+       updateElements(selector, value);
+     }
+
+     updateStatusIndicators();
+     updateConnectionButtons();
+     initializeCopyButtons();
+   }
+
+   function updateStatusIndicators() {
+     const statusIndicators = document.querySelectorAll('.server-status-indicator');
+     statusIndicators.forEach(indicator => {
+       indicator.classList.remove('bg-red-500', 'bg-yellow-500', 'bg-green-500');
+       indicator.classList.add('bg-green-500');
+     });
+
+     // Status text'lerini güncelle
+     const statusTexts = document.querySelectorAll('.server-status-text');
+     statusTexts.forEach(text => {
+       text.textContent = 'Online';
+       text.classList.remove('text-red-500', 'text-yellow-500');
+       text.classList.add('text-green-500');
      });
    }
- 
-   // Gallery item click handler
-   if (galleryItems && galleryItems.length > 0) {
-     galleryItems.forEach((item, index) => {
-       if (item) {
-         item.addEventListener('click', () => {
-           if (visibleItems && mediaModal) {
-             currentImageIndex = visibleItems.indexOf(item);
-             showImage(currentImageIndex);
-             mediaModal.classList.remove('hidden');
-             document.body.style.overflow = 'hidden';
+
+   function updateElements(selector, value) {
+     try {
+       const elements = document.querySelectorAll(selector);
+       elements.forEach(el => {
+         if (el) {
+           // Data attribute varsa onu da güncelle
+           if (el.hasAttribute('data-value')) {
+             el.setAttribute('data-value', value);
            }
-         });
-       }
-     });
-   }
- 
-   // Close modal functionality with fade out
-   const closeModalWithAnimation = () => {
-     if (!modalContent || !modalCaption || !mediaModal) return;
-     
-     const image = modalContent.querySelector('img');
-     const captionDiv = modalCaption.querySelector('div');
-     
-     if (image) {
-       image.style.opacity = '0';
-     }
-     if (captionDiv) {
-       captionDiv.style.opacity = '0';
-       captionDiv.style.transform = 'translateY(4px)';
-     }
-     
-     setTimeout(() => {
-       mediaModal.classList.add('hidden');
-       document.body.style.overflow = '';
-       modalContent.innerHTML = '';
-       modalCaption.innerHTML = '';
-     }, 300);
-   };
- 
-   // Close modal when clicking outside content
-   if (mediaModal) {
-     mediaModal.addEventListener('click', (e) => {
-       if (!e.target.closest('#modalContent') && 
-           !e.target.closest('#modalCaption') && 
-           !e.target.closest('#prevButton') && 
-           !e.target.closest('#nextButton')) {
-         closeModalWithAnimation();
-       }
-     });
-   }
- 
-   // Close modal with Escape key
-   document.addEventListener('keydown', (e) => {
-     if (e.key === 'Escape' && mediaModal && !mediaModal.classList.contains('hidden')) {
-       closeModalWithAnimation();
-     }
-   });
- 
-   // Prevent modal from closing when clicking inside content
-   if (modalContent) {
-     modalContent.addEventListener('click', (e) => {
-       e.stopPropagation();
-     });
-   }
- 
-   // Prevent modal from closing when clicking inside caption
-   if (modalCaption) {
-     modalCaption.addEventListener('click', (e) => {
-       e.stopPropagation();
-     });
-   }
- 
-   // Video functionality
-   const videoContainers = document.querySelectorAll('.video-container');
-   const videoUrls = [
-     'https://www.youtube.com/embed/yIXi_0fC3P0?autoplay=1&rel=0',
-     'https://www.youtube.com/embed/LI-lh9IooYY?autoplay=1&rel=0'
-   ];
- 
-   if (videoContainers && videoContainers.length > 0) {
-     videoContainers.forEach((container, index) => {
-       if (container && videoUrls[index]) {
-         const iframe = container.querySelector('iframe');
-         if (iframe) {
-           iframe.src = videoUrls[index];
-           
-           // Video container'ı tıklanabilir yap
-           container.style.cursor = 'pointer';
-           
-           // Tıklama olayını ekle
-           container.addEventListener('click', () => {
-             try {
-               // Modal oluştur
-               const modal = document.createElement('div');
-               modal.className = 'fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4';
-               
-               // Video iframe'ini oluştur
-               const videoIframe = document.createElement('iframe');
-               videoIframe.src = videoUrls[index];
-               videoIframe.className = 'w-full max-w-4xl aspect-video rounded-lg';
-               videoIframe.setAttribute('frameborder', '0');
-               videoIframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
-               videoIframe.setAttribute('allowfullscreen', '');
-               
-               // Kapatma butonu ekle
-               const closeBtn = document.createElement('button');
-               closeBtn.className = 'absolute top-4 right-4 text-white text-2xl';
-               closeBtn.innerHTML = '<i class="fas fa-times"></i>';
-               
-               // Modal içeriğini oluştur
-               const modalContent = document.createElement('div');
-               modalContent.className = 'relative w-full max-w-4xl';
-               
-               modalContent.appendChild(videoIframe);
-               modal.appendChild(modalContent);
-               modal.appendChild(closeBtn);
-               document.body.appendChild(modal);
-               
-               // Scroll'u devre dışı bırak
-               document.body.style.overflow = 'hidden';
-               
-               // Kapatma işlevselliği
-               const closeModal = () => {
-                 modal.remove();
-                 document.body.style.overflow = '';
-               };
-               
-               closeBtn.addEventListener('click', closeModal);
-               modal.addEventListener('click', (e) => {
-                 if (e.target === modal) closeModal();
-               });
-               
-               // ESC tuşu ile kapatma
-               const keyHandler = (e) => {
-                 if (e.key === 'Escape') {
-                   closeModal();
-                   document.removeEventListener('keydown', keyHandler);
-                 }
-               };
-               
-               document.addEventListener('keydown', keyHandler);
-             } catch (error) {
-               console.error('Video modal oluşturmada hata:', error);
-             }
-           });
-         }
-       }
-     });
-   }
- 
-   // Gallery Slider Functions
-   const gallerySlider = document.getElementById('gallerySlider');
-   const filteredGallery = document.getElementById('filteredGallery');
-   let isAnimating = false;
-   let sliderControls;
-   let autoSlideInterval;
-   let totalSlideCount = 0;
- 
-   function initializeSlider() {
-     if (!gallerySlider) return { slideWidth: 0, gap: 0 };
-     
-     const slides = document.querySelectorAll('#gallerySlider > div');
-     if (!slides.length) return { slideWidth: 0, gap: 0 };
-     
-     // Önce mevcut klonları temizle
-     const clones = gallerySlider.querySelectorAll('.clone');
-     clones.forEach(clone => clone.remove());
-     
-     const slideWidth = slides[0].offsetWidth;
-     const gap = 24;
-     totalSlideCount = slides.length;
-     
-     // Slider container'ı güncelle
-     gallerySlider.style.display = 'flex';
-     gallerySlider.style.gap = gap + 'px';
-     gallerySlider.style.transition = 'transform 0.5s ease-in-out';
-     
-     // Minimum 6 slide olacak şekilde kopyala
-     const minSlides = 6;
-     const repeatCount = Math.ceil(minSlides / slides.length);
-     
-     // Başa ve sona yeterli sayıda slide ekle
-     for (let i = 0; i < repeatCount; i++) {
-       slides.forEach(slide => {
-         // Sona ekle
-         const endClone = slide.cloneNode(true);
-         endClone.classList.add('clone');
-         gallerySlider.appendChild(endClone);
-         
-         // Başa ekle
-         const startClone = slide.cloneNode(true);
-         startClone.classList.add('clone');
-         gallerySlider.insertBefore(startClone, gallerySlider.firstChild);
-       });
-     }
-     
-     // Başlangıç pozisyonunu ayarla
-     const offset = -(totalSlideCount * (slideWidth + gap));
-     gallerySlider.style.transform = `translateX(${offset}px)`;
-     
-     return { slideWidth, gap };
-   }
- 
-   function createInfiniteSlider() {
-     const { slideWidth, gap } = initializeSlider();
-     if (!slideWidth) return null;
-     
-     let currentIndex = totalSlideCount; // Başlangıç indeksi
-     
-     function moveSlider(direction = 1) {
-       if (isAnimating) return;
-       isAnimating = true;
-       
-       currentIndex += direction;
-       const offset = -(currentIndex * (slideWidth + gap));
-       gallerySlider.style.transform = `translateX(${offset}px)`;
-       
-       // Sonsuz döngü kontrolü
-       setTimeout(() => {
-         const totalSlides = document.querySelectorAll('#gallerySlider > div').length;
-         const resetThreshold = Math.floor(totalSlides / 3);
-         
-         if (currentIndex >= totalSlides - resetThreshold) {
-           currentIndex = totalSlideCount;
-           resetSlider();
-         } else if (currentIndex <= resetThreshold) {
-           currentIndex = totalSlides - totalSlideCount - resetThreshold;
-           resetSlider();
-         }
-         
-         isAnimating = false;
-       }, 500);
-     }
-     
-     function resetSlider() {
-       gallerySlider.style.transition = 'none';
-       const offset = -(currentIndex * (slideWidth + gap));
-       gallerySlider.style.transform = `translateX(${offset}px)`;
-       
-       // Force reflow
-       gallerySlider.offsetHeight;
-       
-       setTimeout(() => {
-         gallerySlider.style.transition = 'transform 0.5s ease-in-out';
-       }, 50);
-     }
-     
-     function startAutoSlide() {
-       if (autoSlideInterval) clearInterval(autoSlideInterval);
-       autoSlideInterval = setInterval(() => moveSlider(1), 3000);
-     }
-     
-     function stopAutoSlide() {
-       if (autoSlideInterval) {
-         clearInterval(autoSlideInterval);
-         autoSlideInterval = null;
-       }
-     }
-     
-     // Touch events
-     let touchStartX = 0;
-     let touchEndX = 0;
-     let isSwiping = false;
-     
-     if (gallerySlider) {
-       gallerySlider.addEventListener('touchstart', (e) => {
-         touchStartX = e.touches[0].clientX;
-         isSwiping = true;
-         stopAutoSlide();
-       }, { passive: true });
-       
-       gallerySlider.addEventListener('touchmove', (e) => {
-         if (!isSwiping) return;
-         
-         touchEndX = e.touches[0].clientX;
-         const diff = touchEndX - touchStartX;
-         
-         // Dokunmatik kaydırma animasyonu
-         if (Math.abs(diff) > 20) {
-           const currentOffset = -(currentIndex * (slideWidth + gap));
-           gallerySlider.style.transform = `translateX(${currentOffset + diff}px)`;
-         }
-       }, { passive: true });
-       
-       gallerySlider.addEventListener('touchend', () => {
-         if (!isSwiping) return;
-         
-         const diff = touchEndX - touchStartX;
-         if (Math.abs(diff) > 50) {
-           moveSlider(diff > 0 ? -1 : 1);
-         } else {
-           // Geri al
-           resetSlider();
-         }
-         
-         isSwiping = false;
-         startAutoSlide();
-       });
-       
-       gallerySlider.addEventListener('touchcancel', () => {
-         if (isSwiping) {
-           resetSlider();
-           isSwiping = false;
-           startAutoSlide();
+           // Element içeriğini güncelle
+           el.textContent = value;
          }
        });
-     }
-     
-     // Mouse events
-     let isMouseDown = false;
-     let mouseStartX = 0;
-     let mouseEndX = 0;
-     
-     if (gallerySlider) {
-       gallerySlider.addEventListener('mousedown', (e) => {
-         isMouseDown = true;
-         mouseStartX = e.clientX;
-         stopAutoSlide();
-         gallerySlider.style.cursor = 'grabbing';
-       });
-       
-       gallerySlider.addEventListener('mousemove', (e) => {
-         if (!isMouseDown) return;
-         
-         mouseEndX = e.clientX;
-         const diff = mouseEndX - mouseStartX;
-         
-         // Mouse kaydırma animasyonu
-         if (Math.abs(diff) > 20) {
-           const currentOffset = -(currentIndex * (slideWidth + gap));
-           gallerySlider.style.transform = `translateX(${currentOffset + diff}px)`;
-         }
-       });
-       
-       gallerySlider.addEventListener('mouseup', () => {
-         if (!isMouseDown) return;
-         
-         const diff = mouseEndX - mouseStartX;
-         if (Math.abs(diff) > 50) {
-           moveSlider(diff > 0 ? -1 : 1);
-         } else {
-           resetSlider();
-         }
-         
-         isMouseDown = false;
-         gallerySlider.style.cursor = '';
-         startAutoSlide();
-       });
-       
-       gallerySlider.addEventListener('mouseleave', () => {
-         if (isMouseDown) {
-           resetSlider();
-           isMouseDown = false;
-           gallerySlider.style.cursor = '';
-           startAutoSlide();
-         }
-       });
-       
-       gallerySlider.addEventListener('mouseenter', stopAutoSlide);
-       gallerySlider.addEventListener('mouseleave', startAutoSlide);
-     }
-     
-     // Keyboard events
-     document.addEventListener('keydown', (e) => {
-       if (e.key === 'ArrowLeft') moveSlider(-1);
-       if (e.key === 'ArrowRight') moveSlider(1);
-     });
-     
-     // Window focus/blur events
-     window.addEventListener('focus', startAutoSlide);
-     window.addEventListener('blur', stopAutoSlide);
-     
-     return { startAutoSlide, stopAutoSlide, moveSlider, resetSlider };
-   }
- 
-   // Gallery sayfasında olup olmadığımızı kontrol et
-   function isGalleryPage() {
-     return window.location.pathname.includes('gallery.html');
-   }
- 
-   // Sayfa yüklendiğinde veya gallery kategorisine girildiğinde slider'ı başlat
-   function initializeGallerySection() {
-     if (!isGalleryPage()) return;
-     
-     const activeFilter = document.querySelector('.filter-btn.active');
-     
-     if (activeFilter && activeFilter.getAttribute('data-filter') === 'all') {
-       if (gallerySlider) {
-         gallerySlider.parentElement.classList.remove('hidden');
-       }
-       if (filteredGallery) {
-         filteredGallery.classList.add('hidden');
-       }
-       if (!sliderControls) {
-         sliderControls = createInfiniteSlider();
-         if (sliderControls) {
-           sliderControls.startAutoSlide();
-         }
-       }
+     } catch (error) {
+       console.error(`Error updating elements with selector ${selector}:`, error);
      }
    }
- 
-   // Filter functionality
-   filterButtons.forEach(button => {
-     button.addEventListener('click', () => {
-       // Remove active class from all buttons
-       filterButtons.forEach(btn => {
-         btn.classList.remove('active', 'bg-primary', 'text-white');
-         btn.classList.add('bg-dark-light', 'hover:bg-primary/20');
-       });
-       
-       // Add active class to clicked button
-       button.classList.add('active', 'bg-primary', 'text-white');
-       button.classList.remove('bg-dark-light', 'hover:bg-primary/20');
-       
-       const filter = button.getAttribute('data-filter');
-       
-       if (filter === 'all') {
-         if (gallerySlider) {
-           gallerySlider.parentElement.classList.remove('hidden');
-         }
-         if (filteredGallery) {
-           filteredGallery.classList.add('hidden');
-         }
-         if (!sliderControls) {
-           sliderControls = createInfiniteSlider();
-         }
-         if (sliderControls) {
-           sliderControls.startAutoSlide();
+
+   function updateConnectionButtons() {
+     const connectButtons = document.querySelectorAll('.connect-button, .join-now-btn');
+     const isOnline = true; // Sunucu durumunu kontrol et
+     
+     connectButtons.forEach(button => {
+       if (isOnline) {
+         button.classList.remove('opacity-50', 'cursor-not-allowed', 'bg-gray-500');
+         button.classList.add('bg-primary', 'hover:bg-primary/80');
+         button.removeAttribute('disabled');
+         
+         const textElement = button.querySelector('.connect-text, .join-text');
+         if (textElement) {
+           textElement.textContent = 'Join Now';
          }
        } else {
-         if (gallerySlider) {
-           gallerySlider.parentElement.classList.add('hidden');
-         }
-         if (filteredGallery) {
-           filteredGallery.classList.remove('hidden');
-         }
-         if (sliderControls) {
-           sliderControls.stopAutoSlide();
-         }
+         button.classList.add('opacity-50', 'cursor-not-allowed', 'bg-gray-500');
+         button.classList.remove('bg-primary', 'hover:bg-primary/80');
+         button.setAttribute('disabled', 'true');
          
-         const galleryItems = document.querySelectorAll('.gallery-item');
+         const textElement = button.querySelector('.connect-text, .join-text');
+         if (textElement) {
+           textElement.textContent = 'Server Offline';
+         }
+       }
+     });
+   }
+
+   function initializeCopyButtons() {
+     const copyButtons = document.querySelectorAll('.copy-button, .copy-ip-footer');
+     
+     copyButtons.forEach(button => {
+       // Önceki event listener'ları temizle
+       const newButton = button.cloneNode(true);
+       button.parentNode.replaceChild(newButton, button);
+       
+       newButton.addEventListener('click', async function() {
+         const parentElement = this.closest('.flex');
+         const contentElement = parentElement?.querySelector('.server-connection') || 
+                              parentElement?.querySelector('code');
+         
+         if (contentElement) {
+           try {
+             await navigator.clipboard.writeText(contentElement.textContent.trim());
+             showCopySuccess(this);
+           } catch (err) {
+             console.error('Kopyalama hatası:', err);
+             showCopyError(this);
+           }
+         }
+       });
+     });
+   }
+
+   function showCopySuccess(button) {
+     const originalIcon = button.querySelector('i').className;
+     button.querySelector('i').className = 'fas fa-check text-[#10b981]';
+     button.classList.add('scale-110');
+     
+     setTimeout(() => {
+       button.querySelector('i').className = originalIcon;
+       button.classList.remove('scale-110');
+     }, 2000);
+   }
+
+   function showCopyError(button) {
+     const originalIcon = button.querySelector('i').className;
+     button.querySelector('i').className = 'fas fa-times text-red-500';
+     button.classList.add('scale-110');
+     
+     setTimeout(() => {
+       button.querySelector('i').className = originalIcon;
+       button.classList.remove('scale-110');
+     }, 2000);
+   }
+
+   function formatNumber(num) {
+     if (num >= 1000) {
+       return (num / 1000).toFixed(1) + 'K';
+     }
+     return num.toString();
+   }
+
+   document.addEventListener('DOMContentLoaded', () => {
+     fetchServerDetails();
+     setInterval(fetchServerDetails, 30000);
+   });
+
+   function initFeaturesSlider() {
+     const slider = document.getElementById('featuresSlider');
+     const dots = document.querySelectorAll('.features-dot');
+     let currentSlide = 0;
+     let slideInterval;
+     const slideCount = Math.ceil(slider.children.length / 3); 
+     const autoSlideDelay = 5000; 
+
+     function updateSlider() {
+       const slideWidth = slider.children[0].offsetWidth + 16; 
+       slider.style.transform = `translateX(-${currentSlide * slideWidth * 3}px)`;
+
+       dots.forEach((dot, index) => {
+         if (index === currentSlide) {
+           dot.classList.add('bg-white', 'scale-125');
+           dot.classList.remove('bg-white/50');
+         } else {
+           dot.classList.remove('bg-white', 'scale-125');
+           dot.classList.add('bg-white/50');
+         }
+       });
+     }
+
+     function nextSlide() {
+       currentSlide = (currentSlide + 1) % slideCount;
+       updateSlider();
+     }
+
+     function startAutoSlide() {
+       if (slideInterval) clearInterval(slideInterval);
+       slideInterval = setInterval(nextSlide, autoSlideDelay);
+     }
+
+     function stopAutoSlide() {
+       if (slideInterval) {
+         clearInterval(slideInterval);
+       }
+     }
+
+     dots.forEach((dot, index) => {
+       dot.addEventListener('click', () => {
+         currentSlide = index;
+         updateSlider();
+         stopAutoSlide();
+         startAutoSlide();
+       });
+     });
+
+     startAutoSlide();
+
+     slider.parentElement.addEventListener('mouseenter', stopAutoSlide);
+     slider.parentElement.addEventListener('mouseleave', startAutoSlide);
+
+     updateSlider();
+
+     window.addEventListener('resize', updateSlider);
+   }
+
+   document.addEventListener('DOMContentLoaded', () => {
+     initFeaturesSlider();
+     // ... existing initialization code ...
+   });
+
+   function initGalleryFunctions() {
+     const filterButtons = document.querySelectorAll('.filter-btn');
+     const galleryItems = document.querySelectorAll('.gallery-item');
+     const gallerySlider = document.getElementById('gallerySlider');
+     const filteredGallery = document.getElementById('filteredGallery');
+     let currentIndex = 0;
+     let autoSlideInterval;
+
+     function initializeSlider() {
+       if (!gallerySlider) return;
+
+       const sliderContainer = gallerySlider.parentElement;
+       if (sliderContainer) {
+         sliderContainer.style.overflow = 'hidden';
+         sliderContainer.style.position = 'relative';
+       }
+
+       gallerySlider.style.display = 'flex';
+       gallerySlider.style.transition = 'transform 0.5s ease';
+       gallerySlider.style.gap = '1rem';
+
+       Array.from(gallerySlider.children).forEach(item => {
+         item.style.flex = '0 0 calc(25% - 0.75rem)';
+         item.style.minWidth = 'calc(25% - 0.75rem)';
+         item.style.position = 'relative';
+         item.style.transition = 'all 0.3s ease';
+       });
+
+       updateSlider();
+       startAutoSlide();
+     }
+
+     function updateSlider() {
+       if (!gallerySlider) return;
+       const slideWidth = 25; 
+       const translateX = -currentIndex * slideWidth;
+       gallerySlider.style.transform = `translateX(${translateX}%)`;
+     }
+
+     function startAutoSlide() {
+       if (autoSlideInterval) clearInterval(autoSlideInterval);
+       autoSlideInterval = setInterval(() => {
+         const totalSlides = Array.from(gallerySlider.children).filter(item => item.style.display !== 'none').length;
+         if (totalSlides > 4) {
+           currentIndex = (currentIndex + 1) % (totalSlides - 3);
+           updateSlider();
+         }
+       }, 4000);
+     }
+
+     filterButtons.forEach(button => {
+       button.addEventListener('click', () => {
+         filterButtons.forEach(btn => {
+           btn.classList.remove('active', 'bg-primary', 'text-white');
+           btn.classList.add('bg-dark-light', 'hover:bg-primary/20');
+         });
+         button.classList.add('active', 'bg-primary', 'text-white');
+         button.classList.remove('bg-dark-light', 'hover:bg-primary/20');
+         const filterValue = button.getAttribute('data-filter');
+         if (gallerySlider) {
+           currentIndex = 0; 
+           Array.from(gallerySlider.children).forEach(item => {
+             if (filterValue === 'all' || item.getAttribute('data-category') === filterValue) {
+               item.style.display = '';
+             } else {
+               item.style.display = 'none';
+             }
+           });
+           updateSlider();
+           startAutoSlide();
+         }
          galleryItems.forEach(item => {
-           if (item.getAttribute('data-category') === filter) {
+           if (filterValue === 'all' || item.getAttribute('data-category') === filterValue) {
              item.style.display = 'block';
            } else {
              item.style.display = 'none';
            }
          });
-       }
+         if (filteredGallery) {
+           if (filterValue === 'all') {
+             filteredGallery.classList.add('hidden');
+             if (gallerySlider) gallerySlider.parentElement.classList.remove('hidden');
+           } else {
+             filteredGallery.classList.remove('hidden');
+             if (gallerySlider) gallerySlider.parentElement.classList.add('hidden');
+           }
+         }
+       });
      });
-   });
- 
-   window.addEventListener('resize', () => {
-     if (isGalleryPage() && sliderControls) {
-       sliderControls.stopAutoSlide();
-       sliderControls = createInfiniteSlider();
-       if (sliderControls) {
-         sliderControls.startAutoSlide();
-       }
+
+     let isDragging = false;
+     let startPos = 0;
+     let currentTranslate = 0;
+
+     function touchStart(event) {
+       if (!gallerySlider) return;
+       isDragging = true;
+       startPos = event.type.includes('mouse') ? event.pageX : event.touches[0].clientX;
+       gallerySlider.style.cursor = 'grabbing';
+       gallerySlider.style.transition = 'none';
+       if (autoSlideInterval) clearInterval(autoSlideInterval);
      }
-   });
- 
-   function loadResponsiveImages() {
-     const images = document.querySelectorAll('img[data-src]');
-     images.forEach(img => {
-       if (window.innerWidth <= 768) {
-         img.src = img.getAttribute('data-src-mobile') || img.getAttribute('data-src');
-       } else {
-         img.src = img.getAttribute('data-src');
+
+     function touchMove(event) {
+       if (!isDragging) return;
+       const currentPos = event.type.includes('mouse') ? event.pageX : event.touches[0].clientX;
+       const diff = currentPos - startPos;
+       const translateX = -currentIndex * 25 + (diff / gallerySlider.offsetWidth) * 100;
+       gallerySlider.style.transform = `translateX(${translateX}%)`;
+     }
+
+     function touchEnd(event) {
+       if (!isDragging) return;
+       isDragging = false;
+       gallerySlider.style.cursor = 'grab';
+       gallerySlider.style.transition = 'transform 0.5s ease';
+       
+       const endPos = event.type.includes('mouse') ? event.pageX : event.changedTouches[0].clientX;
+       const diff = endPos - startPos;
+       const threshold = gallerySlider.offsetWidth * 0.2;
+
+       if (Math.abs(diff) > threshold) {
+         if (diff > 0 && currentIndex > 0) {
+           currentIndex--;
+         } else if (diff < 0 && currentIndex < Array.from(gallerySlider.children).filter(item => item.style.display !== 'none').length - 4) {
+           currentIndex++;
+         }
        }
-       img.removeAttribute('data-src');
-       img.removeAttribute('data-src-mobile');
-     });
-   }
- 
-   let resizeTimeout;
-   window.addEventListener('resize', () => {
-     clearTimeout(resizeTimeout);
-     resizeTimeout = setTimeout(() => {
-       loadResponsiveImages();
-       updateLayoutOnResize();
-     }, 250);
-   });
- 
-   function updateLayoutOnResize() {
-     const isMobile = window.innerWidth <= 768;
-     const sections = document.querySelectorAll('section');
-     
-     sections.forEach(section => {
-       if (isMobile) {
-         section.classList.add('mobile-container');
-       } else {
-         section.classList.remove('mobile-container');
-       }
-     });
-   }
 
-   document.addEventListener('DOMContentLoaded', () => {
-     loadResponsiveImages();
-     updateLayoutOnResize();
-   });
- 
-   const progressBars = document.querySelectorAll('.progress-line');
-   
-   progressBars.forEach(bar => {
-     const length = bar.getTotalLength();
+       updateSlider();
+       startAutoSlide();
+     }
 
-     bar.style.strokeDasharray = length;
-     bar.style.strokeDashoffset = length;
+     if (gallerySlider) {
+       gallerySlider.addEventListener('touchstart', touchStart);
+       gallerySlider.addEventListener('touchmove', touchMove);
+       gallerySlider.addEventListener('touchend', touchEnd);
 
-     setTimeout(() => {
-       bar.style.transition = 'stroke-dashoffset 2s ease-out';
-       bar.style.strokeDashoffset = '0';
-     }, 100);
-   });
- 
-   document.addEventListener('DOMContentLoaded', () => {
-     AOS.init({
-       duration: 800,
-       easing: 'ease-in-out',
-       once: true,
-       mirror: false,
-       disable: window.innerWidth < 768
-     });
- 
-     animateNumbers();
- 
-     setInterval(animateNumbers, 10000);
-   });
- 
-   function setMobileHeight() {
-     let vh = window.innerHeight * 0.01;
-     document.documentElement.style.setProperty('--vh', `${vh}px`);
-   }
+       gallerySlider.addEventListener('mousedown', touchStart);
+       gallerySlider.addEventListener('mousemove', touchMove);
+       gallerySlider.addEventListener('mouseup', touchEnd);
+       gallerySlider.addEventListener('mouseleave', touchEnd);
 
-   setMobileHeight();
+       initializeSlider();
+     }
 
-   window.addEventListener('resize', () => {
-     setMobileHeight();
-   });
- 
-   const legalDropdown = document.querySelector('.group .absolute');
-   if (legalDropdown) {
-     const currentUrl = window.location.href.toLowerCase();
-     const isLegalPage = currentUrl.includes('terms.html') || 
-                          currentUrl.includes('privacy.html') || 
-                          currentUrl.includes('rules.html');
-     
-     if (isLegalPage) {
-       legalDropdown.classList.remove('opacity-0', 'invisible', 'translate-y-2');
-       legalDropdown.classList.add('opacity-100', 'visible', 'translate-y-0');
-       const legalGroup = document.querySelector('.group');
-       if (legalGroup) {
-         legalGroup.classList.add('active-dropdown');
-       }
+     const allButton = document.querySelector('.filter-btn[data-filter="all"]');
+     if (allButton) {
+       allButton.classList.add('active', 'bg-primary', 'text-white');
+       allButton.classList.remove('bg-dark-light', 'hover:bg-primary/20');
      }
    }
- });
+
+   initGalleryFunctions();
+
+   function initImageModal() {
+     const modal = document.getElementById('mediaModal');
+     const modalContent = document.getElementById('modalContent');
+     const modalCaption = document.getElementById('modalCaption');
+     const prevButton = document.getElementById('prevButton');
+     const nextButton = document.getElementById('nextButton');
+     
+     let currentImageIndex = 0;
+     let galleryImages = [];
+     let currentRotation = 0;
+
+     function updateGalleryImages() {
+       const visibleSliderItems = Array.from(document.querySelectorAll('#gallerySlider > div:not([style*="display: none"])'));
+       const visibleGridItems = Array.from(document.querySelectorAll('.gallery-item:not([style*="display: none"])'));
+       galleryImages = [...visibleSliderItems, ...visibleGridItems];
+     }
+
+     document.querySelectorAll('#gallerySlider > div, .gallery-item').forEach(item => {
+       item.addEventListener('click', () => {
+         updateGalleryImages();
+         currentImageIndex = galleryImages.indexOf(item);
+         openModal(item);
+       });
+     });
+
+     function openModal(item) {
+       const img = item.querySelector('img');
+       const title = item.querySelector('h3')?.textContent || '';
+       const description = item.querySelector('p')?.textContent || '';
+       currentRotation = 0;
+
+       modalContent.innerHTML = `
+         <img src="${img.src}" alt="${img.alt}" class="max-h-[70vh] w-auto rounded-lg shadow-2xl transition-all duration-300" style="transform: rotate(${currentRotation}deg)">
+       `;
+       
+       modalCaption.innerHTML = `
+         <h3 class="text-xl font-bold text-white mb-2">${title}</h3>
+         <p class="text-gray-300">${description}</p>
+       `;
+
+       // Klavye kısayolları bilgisi
+       const keyboardInfoDiv = modal.querySelector('.keyboard-info');
+       if (keyboardInfoDiv) {
+         keyboardInfoDiv.innerHTML = `
+           <div class="bg-[#1e293b] bg-opacity-50 backdrop-blur-sm px-4 py-2 rounded-full text-sm">
+             <span class="mr-4">
+               <i class="fas fa-arrow-left mr-2"></i>
+               <i class="fas fa-arrow-right"></i>
+               Gezinme
+             </span>
+             <span>
+               <i class="fas fa-arrow-up mr-2"></i>
+               <i class="fas fa-arrow-down"></i>
+               Döndürme
+             </span>
+           </div>
+         `;
+       }
+
+       modal.classList.remove('hidden');
+       document.body.style.overflow = 'hidden';
+
+       prevButton.style.display = currentImageIndex > 0 ? 'block' : 'none';
+       nextButton.style.display = currentImageIndex < galleryImages.length - 1 ? 'block' : 'none';
+     }
+
+     function closeModal() {
+       modal.classList.add('hidden');
+       document.body.style.overflow = '';
+       currentRotation = 0;
+     }
+
+     function rotateImage(direction) {
+       const img = modalContent.querySelector('img');
+       if (!img) return;
+
+       currentRotation += direction === 'up' ? 90 : -90;
+       img.style.transform = `rotate(${currentRotation}deg)`;
+     }
+
+     function showNextImage(fast = false) {
+       if (currentImageIndex < galleryImages.length - 1) {
+         currentImageIndex++;
+         const nextItem = galleryImages[currentImageIndex];
+         if (fast) {
+           modalContent.style.transition = 'all 0.15s ease-in-out';
+         }
+         openModal(nextItem);
+         setTimeout(() => {
+           modalContent.style.transition = '';
+         }, 150);
+       }
+     }
+
+     function showPrevImage(fast = false) {
+       if (currentImageIndex > 0) {
+         currentImageIndex--;
+         const prevItem = galleryImages[currentImageIndex];
+         if (fast) {
+           modalContent.style.transition = 'all 0.15s ease-in-out';
+         }
+         openModal(prevItem);
+         setTimeout(() => {
+           modalContent.style.transition = '';
+         }, 150);
+       }
+     }
+
+     // Event Listeners
+     modal.addEventListener('click', (e) => {
+       if (!e.target.closest('#modalContent') && !e.target.closest('#prevButton') && !e.target.closest('#nextButton')) {
+         closeModal();
+       }
+     });
+
+     prevButton.addEventListener('click', (e) => {
+       e.stopPropagation();
+       showPrevImage();
+     });
+
+     nextButton.addEventListener('click', (e) => {
+       e.stopPropagation();
+       showNextImage();
+     });
+
+     // Keyboard Navigation
+     document.addEventListener('keydown', (e) => {
+       if (!modal.classList.contains('hidden')) {
+         switch(e.key) {
+           case 'Escape':
+             closeModal();
+             break;
+           case 'ArrowRight':
+             e.shiftKey ? showNextImage(true) : showNextImage();
+             break;
+           case 'ArrowLeft':
+             e.shiftKey ? showPrevImage(true) : showPrevImage();
+             break;
+           case 'ArrowUp':
+             e.preventDefault();
+             rotateImage('up');
+             break;
+           case 'ArrowDown':
+             e.preventDefault();
+             rotateImage('down');
+             break;
+         }
+       }
+     });
+
+     // Update gallery images when filter changes
+     document.querySelectorAll('.filter-btn').forEach(button => {
+       button.addEventListener('click', () => {
+         setTimeout(updateGalleryImages, 100);
+       });
+     });
+   }
+
+   // Initialize image modal
+   initImageModal();
+ })();
+ 
