@@ -142,47 +142,89 @@
     <section class="py-12 bg-dark">
       <div class="container mx-auto px-4">
         <div class="max-w-4xl mx-auto">
-          <div class="bg-[#1a1d24]/95 backdrop-blur-md rounded-xl shadow-xl overflow-hidden border border-[#10b981]/20" data-aos="fade-up">
-            <div class="p-4 md:p-8">
-              <div class="w-full h-16 bg-[#10b981]/10 rounded-lg mb-6 flex items-center justify-center">
-                <i class="fas fa-plug text-[#10b981] text-2xl"></i>
-              </div>
-              
-              <div class="flex flex-col md:flex-row md:items-center justify-between mb-6">
-                <div class="mb-4 md:mb-0">
-                  <h2 class="text-2xl font-bold mb-1">Quick Connect</h2>
-                  <p class="text-gray-400">Connect to our server instantly</p>
+          <div class="bg-[#1a1d24]/95 backdrop-blur-md rounded-2xl shadow-2xl overflow-hidden border border-primary/20 hover:border-primary/40 transition-all duration-500" data-aos="fade-up">
+            <div class="p-6 md:p-8">
+              <!-- Header -->
+              <div class="flex items-center justify-between mb-8">
+                <div>
+                  <h2 class="text-3xl font-bold bg-gradient-to-r from-primary via-secondary to-tertiary bg-clip-text text-transparent">Quick Connect</h2>
+                  <p class="text-gray-400 mt-1">Join our server instantly</p>
+                </div>
+                <div class="relative group">
+                  <div class="absolute -inset-1 bg-gradient-to-r from-primary via-secondary to-tertiary rounded-full blur opacity-40 group-hover:opacity-75 transition duration-500"></div>
+                  <div class="relative w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center group-hover:bg-primary/20 transition-all duration-300">
+                    <i class="fas fa-plug text-primary text-2xl group-hover:scale-110 transition-transform duration-300"></i>
+                  </div>
                 </div>
               </div>
-              
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="bg-[#12151a] p-4 rounded-lg border border-[#10b981]/20 hover:border-[#10b981]/40 transition duration-300">
-                  <div class="flex items-center justify-between flex-wrap gap-2">
-                    <div class="flex items-center flex-1 min-w-[200px]">
-                      <div class="bg-[#10b981]/10 p-2.5 rounded-lg mr-3">
-                        <i class="fas fa-network-wired text-[#10b981] text-lg"></i>
-                      </div>
-                      <code class="text-[#10b981] text-sm break-all">play.eyesroleplay.com</code>
+
+              <!-- Server Status -->
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                <div class="bg-dark/50 backdrop-blur-sm p-4 rounded-xl border border-primary/10 hover:border-primary/30 transition-all duration-300">
+                  <div class="flex items-center gap-3">
+                    <div class="bg-primary/10 p-2 rounded-lg">
+                      <i class="fas fa-users text-primary"></i>
                     </div>
-                    <button id="copy-ip" class="text-gray-400 hover:text-[#10b981] transition duration-300 ml-auto p-2 hover:bg-[#10b981]/5 rounded-lg">
-                      <i class="fas fa-copy"></i>
-                    </button>
+                    <div>
+                      <p class="text-gray-400 text-sm">Players</p>
+                      <p class="text-primary font-bold quick-stats-players">0/64</p>
+                    </div>
                   </div>
                 </div>
                 
-                <div class="bg-[#12151a] p-4 rounded-lg border border-[#10b981]/20 hover:border-[#10b981]/40 transition duration-300">
-                  <div class="flex items-center justify-between flex-wrap gap-2">
-                    <div class="flex items-center flex-1 min-w-[200px]">
-                      <div class="bg-[#10b981]/10 p-2.5 rounded-lg mr-3">
-                        <i class="fas fa-link text-[#10b981] text-lg"></i>
-                      </div>
-                      <code class="text-[#10b981] text-sm break-all">fivem://connect/play.eyesroleplay.com</code>
+                <div class="bg-dark/50 backdrop-blur-sm p-4 rounded-xl border border-secondary/10 hover:border-secondary/30 transition-all duration-300">
+                  <div class="flex items-center gap-3">
+                    <div class="bg-secondary/10 p-2 rounded-lg">
+                      <i class="fas fa-signal text-secondary"></i>
                     </div>
-                    <button id="copy-direct" class="text-gray-400 hover:text-[#10b981] transition duration-300 ml-auto p-2 hover:bg-[#10b981]/5 rounded-lg">
-                      <i class="fas fa-copy"></i>
-                    </button>
+                    <div>
+                      <p class="text-gray-400 text-sm">Ping</p>
+                      <p class="text-secondary font-bold quick-stats-ping">45ms</p>
+                    </div>
                   </div>
                 </div>
+                
+                <div class="bg-dark/50 backdrop-blur-sm p-4 rounded-xl border border-tertiary/10 hover:border-tertiary/30 transition-all duration-300">
+                  <div class="flex items-center gap-3">
+                    <div class="bg-tertiary/10 p-2 rounded-lg">
+                      <i class="fas fa-circle text-tertiary animate-pulse"></i>
+                    </div>
+                    <div>
+                      <p class="text-gray-400 text-sm">Status</p>
+                      <p class="text-tertiary font-bold">Online</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Connection Info -->
+              <div class="bg-dark/50 backdrop-blur-sm p-6 rounded-xl border border-primary/10 hover:border-primary/30 transition-all duration-300">
+                <div class="flex flex-col md:flex-row items-center gap-4">
+                  <div class="flex-1 w-full">
+                    <div class="relative">
+                      <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-link text-primary"></i>
+                      </div>
+                      <input type="text" value="fivem://connect/53m5qd" readonly class="w-full bg-dark/50 border border-primary/20 text-primary rounded-lg pl-10 pr-20 py-3 focus:outline-none focus:border-primary/40 transition-all duration-300 server-connection" />
+                      <button class="copy-button absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-primary p-2 rounded-lg transition-all duration-300 hover:bg-primary/10">
+                        <i class="fas fa-copy"></i>
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <a href="fivem://connect/53m5qd" class="join-now-btn bg-gradient-to-r from-primary via-secondary to-tertiary hover:from-primary/90 hover:via-secondary/90 hover:to-tertiary/90 text-white px-8 py-3 rounded-lg transition-all duration-300 flex items-center gap-2 shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 hover:scale-105 whitespace-nowrap">
+                    <i class="fas fa-play"></i>
+                    Join Now
+                  </a>
+                </div>
+              </div>
+
+              <!-- Additional Info -->
+              <div class="mt-6 text-center">
+                <p class="text-gray-400 text-sm">
+                  <i class="fas fa-info-circle text-primary mr-2"></i>
+                  Need help connecting? Check our <a href="#" class="text-primary hover:text-secondary transition-colors duration-300">connection guide</a>
+                </p>
               </div>
             </div>
           </div>
@@ -219,150 +261,176 @@
                       </div>
                       <div>
                         <div class="text-lg font-bold relative group">
-                          <span class="text-primary transition-all duration-300">73</span>
-                          <span class="text-gray-400 text-sm">/128</span>
+                          <span class="text-primary transition-all duration-300 player-count">0/64</span>
                           <div class="absolute -bottom-1 left-0 w-full h-0.5 bg-gradient-to-r from-primary to-transparent scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></div>
                         </div>
                         <p class="text-gray-400 text-xs">Active Players</p>
                       </div>
                     </div>
-                    <div class="w-full bg-gray-700/50 rounded-full h-1.5 mt-2 overflow-hidden">
-                      <div class="bg-primary h-1.5 rounded-full relative animate-pulse-slow" style="width: 57%">
-                        <div class="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent animate-gradient-x"></div>
-                      </div>
-                    </div>
                   </div>
                 </div>
                 
-                <!-- Modernize edilmiş Uptime paneli -->
+                <!-- Server Region paneli -->
                 <div class="relative bg-dark p-3 rounded-lg group hover:bg-dark-light/80 transition duration-300 overflow-hidden">
                   <div class="absolute inset-0 bg-gradient-to-r from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300"></div>
                   <div class="relative z-10">
                     <div class="flex items-center">
                       <div class="bg-primary/20 text-primary p-1.5 w-8 h-8 flex items-center justify-center rounded-lg mr-2 group-hover:bg-primary/30 group-hover:scale-110 transition-all duration-300">
-                        <i class="fas fa-clock text-sm group-hover:text-white transition-all duration-300"></i>
+                        <i class="fas fa-globe text-sm group-hover:text-white transition-all duration-300"></i>
+                      </div>
+                      <div>
+                        <div class="text-lg font-bold relative group truncate max-w-[100px]">
+                          <span class="text-primary transition-all duration-300 server-region">EU</span>
+                          <div class="absolute -bottom-1 left-0 w-full h-0.5 bg-gradient-to-r from-primary to-transparent scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></div>
+                        </div>
+                        <p class="text-gray-400 text-xs">Server Region</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Server Score paneli -->
+                <div class="relative bg-dark p-3 rounded-lg group hover:bg-dark-light/80 transition duration-300 overflow-hidden">
+                  <div class="absolute inset-0 bg-gradient-to-r from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300"></div>
+                  <div class="relative z-10">
+                    <div class="flex items-center">
+                      <div class="bg-primary/20 text-primary p-1.5 w-8 h-8 flex items-center justify-center rounded-lg mr-2 group-hover:bg-primary/30 group-hover:scale-110 transition-all duration-300">
+                        <i class="fas fa-star text-sm group-hover:text-white transition-all duration-300"></i>
                       </div>
                       <div>
                         <div class="text-lg font-bold relative group">
-                          <span class="text-primary transition-all duration-300">24/7</span>
+                          <span class="text-primary transition-all duration-300 server-score">11,862</span>
                           <div class="absolute -bottom-1 left-0 w-full h-0.5 bg-gradient-to-r from-primary to-transparent scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></div>
                         </div>
-                        <p class="text-gray-400 text-xs">Uptime</p>
-                      </div>
-                    </div>
-                    <div class="w-full bg-gray-700/50 rounded-full h-1.5 mt-2 overflow-hidden">
-                      <div class="bg-primary h-1.5 rounded-full relative animate-pulse-slow" style="width: 100%">
-                        <div class="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent animate-gradient-x"></div>
+                        <p class="text-gray-400 text-xs">Server Score</p>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                <div class="bg-dark p-3 rounded-lg hover:bg-dark-light transition duration-300">
-                  <div class="flex items-center">
-                    <div class="bg-primary/20 text-primary p-1.5 rounded-lg mr-2">
-                      <i class="fas fa-server text-sm"></i>
+                <!-- Resources paneli -->
+                <div class="relative bg-dark p-3 rounded-lg group hover:bg-dark-light/80 transition duration-300 overflow-hidden">
+                  <div class="absolute inset-0 bg-gradient-to-r from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300"></div>
+                  <div class="relative z-10">
+                    <div class="flex items-center">
+                      <div class="bg-primary/20 text-primary p-1.5 w-8 h-8 flex items-center justify-center rounded-lg mr-2 group-hover:bg-primary/30 group-hover:scale-110 transition-all duration-300">
+                        <i class="fas fa-cube text-sm group-hover:text-white transition-all duration-300"></i>
+                      </div>
+                      <div>
+                        <div class="text-lg font-bold relative group">
+                          <span class="text-primary transition-all duration-300 resource-count">298</span>
+                          <div class="absolute -bottom-1 left-0 w-full h-0.5 bg-gradient-to-r from-primary to-transparent scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></div>
+                        </div>
+                        <p class="text-gray-400 text-xs">Resources</p>
+                      </div>
                     </div>
-                    <div>
-                      <div class="text-lg font-bold">32GB</div>
-                      <p class="text-gray-400 text-xs">RAM</p>
-                    </div>
-                  </div>
-                  <div class="w-full bg-gray-700 rounded-full h-1.5 mt-2">
-                    <div class="bg-primary h-1.5 rounded-full" style="width: 75%"></div>
-                  </div>
-                </div>
-
-                <div class="bg-dark p-3 rounded-lg hover:bg-dark-light transition duration-300">
-                  <div class="flex items-center">
-                    <div class="bg-primary/20 text-primary p-1.5 rounded-lg mr-2">
-                      <i class="fas fa-signal text-sm"></i>
-                    </div>
-                    <div>
-                      <div class="text-lg font-bold">50ms</div>
-                      <p class="text-gray-400 text-xs">Ping</p>
-                    </div>
-                  </div>
-                  <div class="w-full bg-gray-700 rounded-full h-1.5 mt-2">
-                    <div class="bg-primary h-1.5 rounded-full" style="width: 90%"></div>
-                  </div>
-                </div>
-
-                <div class="bg-dark p-3 rounded-lg hover:bg-dark-light transition duration-300">
-                  <div class="flex items-center">
-                    <div class="bg-primary/20 text-primary p-1.5 rounded-lg mr-2">
-                      <i class="fas fa-microchip text-sm"></i>
-                    </div>
-                    <div>
-                      <div class="text-lg font-bold">8 Core</div>
-                      <p class="text-gray-400 text-xs">CPU</p>
-                    </div>
-                  </div>
-                  <div class="w-full bg-gray-700 rounded-full h-1.5 mt-2">
-                    <div class="bg-primary h-1.5 rounded-full" style="width: 65%"></div>
-                  </div>
-                </div>
-
-                <div class="bg-dark p-3 rounded-lg hover:bg-dark-light transition duration-300">
-                  <div class="flex items-center">
-                    <div class="bg-primary/20 text-primary p-1.5 rounded-lg mr-2">
-                      <i class="fas fa-hdd text-sm"></i>
-                    </div>
-                    <div>
-                      <div class="text-lg font-bold">1TB</div>
-                      <p class="text-gray-400 text-xs">SSD</p>
-                    </div>
-                  </div>
-                  <div class="w-full bg-gray-700 rounded-full h-1.5 mt-2">
-                    <div class="bg-primary h-1.5 rounded-full" style="width: 40%"></div>
                   </div>
                 </div>
               </div>
 
-              <div class="mt-4 text-sm">
-                <div class="flex items-center justify-between mb-1">
-                  <span class="text-gray-400">Last Restart</span>
-                  <span class="text-primary">2 days ago</span>
-                </div>
-                <div class="flex items-center justify-between mb-1">
-                  <span class="text-gray-400">Next Maintenance</span>
-                  <span class="text-primary">5 days</span>
-                </div>
-                <div class="flex items-center justify-between mb-1">
-                  <span class="text-gray-400">Version</span>
-                  <span class="text-primary">v1.8.5</span>
-                </div>
-                <div class="flex items-center justify-between mb-1">
-                  <span class="text-gray-400">Average Ping</span>
-                  <span class="text-primary">45-60ms</span>
-                </div>
-                <div class="flex items-center justify-between mb-1">
-                  <span class="text-gray-400">Server Location</span>
-                  <span class="text-primary">Frankfurt, DE</span>
-                </div>
-                <div class="flex items-center justify-between mb-1">
-                  <span class="text-gray-400">Backup Frequency</span>
-                  <span class="text-primary">Every 6 hours</span>
-                </div>
-                <div class="flex items-center justify-between mb-1">
-                  <span class="text-gray-400">DDoS Protection</span>
-                  <span class="text-primary">Enabled</span>
-                </div>
-                <div class="flex items-center justify-between">
-                  <span class="text-gray-400">Server Type</span>
-                  <span class="text-primary">Dedicated</span>
-                </div>
-                <div class="flex items-center justify-between">
-                  <span class="text-gray-400">Server Region</span>
-                  <span class="text-primary">Europe</span>
-                </div>
-                <div class="flex items-center justify-between">
-                  <span class="text-gray-400">Server Provider</span>
-                  <span class="text-primary">OVH</span>
-                </div>
-                <div class="flex items-center justify-between">
-                  <span class="text-gray-400">Server Uptime</span>
-                  <span class="text-primary">99.9%</span>
+              <!-- Oyuncu İstatistikleri -->
+              <div id="player-stats" class="mt-4"></div>
+
+              <!-- Sunucu Detayları -->
+              <div class="mt-4 text-sm space-y-2">
+                <div class="grid grid-cols-2 gap-x-6 gap-y-2">
+                  <div class="bg-dark p-2 rounded-lg">
+                    <div class="flex items-center justify-between">
+                      <span class="text-gray-400">Last Restart</span>
+                      <span class="text-primary" id="last-restart">2 days ago</span>
+                    </div>
+                  </div>
+                  <div class="bg-dark p-2 rounded-lg">
+                    <div class="flex items-center justify-between">
+                      <span class="text-gray-400">Next Maintenance</span>
+                      <span class="text-primary" id="next-maintenance">5 days</span>
+                    </div>
+                  </div>
+                  <div class="bg-dark p-2 rounded-lg">
+                    <div class="flex items-center justify-between">
+                      <span class="text-gray-400">Version</span>
+                      <span class="text-primary" id="server-version">v1.8.5</span>
+                    </div>
+                  </div>
+                  <div class="bg-dark p-2 rounded-lg">
+                    <div class="flex items-center justify-between">
+                      <span class="text-gray-400">Average Ping</span>
+                      <span class="text-primary" id="average-ping">45-60ms</span>
+                    </div>
+                  </div>
+                  <div class="bg-dark p-2 rounded-lg">
+                    <div class="flex items-center justify-between">
+                      <span class="text-gray-400">Server Location</span>
+                      <span class="text-primary" id="server-location">Frankfurt, DE</span>
+                    </div>
+                  </div>
+                  <div class="bg-dark p-2 rounded-lg">
+                    <div class="flex items-center justify-between">
+                      <span class="text-gray-400">Backup Frequency</span>
+                      <span class="text-primary" id="backup-frequency">Every 6h</span>
+                    </div>
+                  </div>
+                  <div class="bg-dark p-2 rounded-lg">
+                    <div class="flex items-center justify-between">
+                      <span class="text-gray-400">DDoS Protection</span>
+                      <span class="text-primary" id="ddos-protection">Enabled</span>
+                    </div>
+                  </div>
+                  <div class="bg-dark p-2 rounded-lg">
+                    <div class="flex items-center justify-between">
+                      <span class="text-gray-400">Server Type</span>
+                      <span class="text-primary" id="server-type">Dedicated</span>
+                    </div>
+                  </div>
+                  <div class="bg-dark p-2 rounded-lg">
+                    <div class="flex items-center justify-between">
+                      <span class="text-gray-400">Server Region</span>
+                      <span class="text-primary" id="server-region">Europe</span>
+                    </div>
+                  </div>
+                  <div class="bg-dark p-2 rounded-lg">
+                    <div class="flex items-center justify-between">
+                      <span class="text-gray-400">Server Provider</span>
+                      <span class="text-primary" id="server-provider">OVH</span>
+                    </div>
+                  </div>
+                  <div class="bg-dark p-2 rounded-lg">
+                    <div class="flex items-center justify-between">
+                      <span class="text-gray-400">Server Uptime</span>
+                      <span class="text-primary" id="server-uptime">99.9%</span>
+                    </div>
+                  </div>
+                  <!-- Yeni eklenen bilgiler -->
+                  <div class="bg-dark p-2 rounded-lg">
+                    <div class="flex items-center justify-between">
+                      <span class="text-gray-400">Framework</span>
+                      <span class="text-primary" id="server-framework">ESX Legacy</span>
+                    </div>
+                  </div>
+                  <div class="bg-dark p-2 rounded-lg">
+                    <div class="flex items-center justify-between">
+                      <span class="text-gray-400">Script Version</span>
+                      <span class="text-primary" id="script-version">1.9.4</span>
+                    </div>
+                  </div>
+                  <div class="bg-dark p-2 rounded-lg">
+                    <div class="flex items-center justify-between">
+                      <span class="text-gray-400">Game Version</span>
+                      <span class="text-primary" id="game-version">1.68</span>
+                    </div>
+                  </div>
+                  <div class="bg-dark p-2 rounded-lg">
+                    <div class="flex items-center justify-between">
+                      <span class="text-gray-400">Voice System</span>
+                      <span class="text-primary" id="voice-system">Mumble 2.0</span>
+                    </div>
+                  </div>
+                  <div class="bg-dark p-2 rounded-lg">
+                    <div class="flex items-center justify-between">
+                      <span class="text-gray-400">Anti-Cheat</span>
+                      <span class="text-primary" id="anticheat">EyeAC v3</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -627,12 +695,13 @@
                 <i class="fab fa-twitter text-xl"></i>
               </a>
             </div>
+            <!-- Footer IP -->
             <div class="mt-4">
               <p class="text-gray-400">Server IP:</p>
               <div class="flex items-center mt-1">
-                <code class="text-green-400 text-sm">play.eyesroleplay.com</code>
-                <button class="copy-ip-footer ml-2 text-gray-400 hover:text-primary">
-                  <i class="fas fa-copy"></i>
+                <code class="text-[#10b981] text-sm server-connection select-all cursor-pointer">fivem://connect/53m5qd</code>
+                <button class="copy-button text-gray-400 hover:text-[#10b981] p-2 rounded-lg transition-all duration-300 hover:bg-[#10b981]/10 group/btn cursor-pointer ml-2">
+                  <i class="fas fa-copy group-hover/btn:scale-110 transition-transform duration-300"></i>
                 </button>
               </div>
             </div>
